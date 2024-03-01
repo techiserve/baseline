@@ -43,6 +43,7 @@ class BaselineController extends Controller
         ini_set('max_execution_time', 3600); // 3600 seconds = 60 minutes
          set_time_limit(3600);
 
+            dd('loading.....');
         //COUNT COLUMN
 //         $trips = DB::connection('mysql')->table('baselinetest')->where('id', '>', 1)->get();
 //         $counter = 1;
@@ -457,7 +458,7 @@ class BaselineController extends Controller
     {
         $trips = DB::connection('mysql')->table('baselinetest')->where('id', '=', 1)->get();  
         dd($trips);
-        
+
         foreach($trips as $trip){
 
             if($trip->CoordinateTest == 0){
