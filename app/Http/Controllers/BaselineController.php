@@ -455,8 +455,9 @@ class BaselineController extends Controller
      */
     public function movingStationary()
     {
-        $trips = DB::connection('mysql')->table('baselinetest')->where('id', '>', 0)->get();  
-
+        $trips = DB::connection('mysql')->table('baselinetest')->where('id', '=', 1)->get();  
+        dd($trips);
+        
         foreach($trips as $trip){
 
             if($trip->CoordinateTest == 0){
