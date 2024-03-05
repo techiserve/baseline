@@ -10,6 +10,10 @@ class BaselineController extends Controller
 {
     public function LongDifference()
     {
+
+        ini_set('max_execution_time', 3600); // 3600 seconds = 60 minutes
+        set_time_limit(3600);
+
         $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
         $truckData = $truckData->take(2);
    
@@ -41,6 +45,9 @@ class BaselineController extends Controller
 
     public function LatDifference()
     {
+        ini_set('max_execution_time', 3600); // 3600 seconds = 60 minutes
+        set_time_limit(3600);
+
         $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
         $truckData = $truckData->take(2);
    
@@ -71,6 +78,9 @@ class BaselineController extends Controller
 
     public function CoordinateTest()
     {
+        ini_set('max_execution_time', 3600); // 3600 seconds = 60 minutes
+        set_time_limit(3600);
+
         $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
         $truckData = $truckData->take(2);
    
@@ -104,11 +114,9 @@ class BaselineController extends Controller
         dd('done...');
         return view('timeDifference');
     }
-
     /**
      * Display a listing of the resource.
      */
-
 
      public function Count(){
 
@@ -310,54 +318,82 @@ class BaselineController extends Controller
 
           }
 
-          foreach($trucks as $trip){
+        }
 
-            $TripEnd = DB::connection('mysql')->table('baselinetest')->where('Trip', '=' , null)->where('TripTest', '=', 'Trip Ended')->where('Truck','=', $trip->Truck)->first(); 
-            if( $TripEnd != null){
-             $NextTripStart = DB::connection('mysql')->table('baselinetest')->where('Trip', '=' , null)->where('id', '>' , $TripEnd->id)->where('TripTest', '=', 'Trip Start')->where('Truck','=', $trip->Truck)->first(); 
-            }else{
-            $NextTripStart = null;
-            }
-            
-            if($NextTripStart != null AND $TripEnd != null){
-              //  dd('ndashaya...');
-            $interval =  date_diff(date_create($NextTripStart->Time),date_create($TripEnd->Time)); 
-
-            $minutes = $interval->days * 24 * 60; 
-            $minutes += $interval->h * 60; 
-            $minutes += $interval->i; 
-
-        //    dd($minutes);
-            if($minutes < 10){
-
-              $updateinbetween =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$TripEnd->id, $NextTripStart->id])->update([
-
-               'TripTest' => 'Trip in progress',
-               'Trip' => '1'
-            ]);
-            }
-            
-         }
-
-
-       }
+        dd('done');
 
         }
 
 
-   
-      // dd($TripEnd,$NextTripStart);
 
-       dd('done..');
 
-          dd('done...');
+        public function TripTestUpdated(){
 
-     }
+            ini_set('max_execution_time', 3600); // 3600 seconds = 60 minutes
+            set_time_limit(3600);
+    
+            $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
+            $truckData = $truckData->take(2);
+       
+             foreach ($truckData as $truckCode => $rows) {
+         
+             $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('id', '>', $rows->id)->get();
+            foreach($trucks as $trip){
+
+                $TripEnd = DB::connection('mysql')->table('baselinetest')->where('Trip', '=' , null)->where('TripTest', '=', 'Trip Ended')->where('Truck','=', $trip->Truck)->first(); 
+                if( $TripEnd != null){
+                 $NextTripStart = DB::connection('mysql')->table('baselinetest')->where('Trip', '=' , null)->where('id', '>' , $TripEnd->id)->where('TripTest', '=', 'Trip Start')->where('Truck','=', $trip->Truck)->first(); 
+                }else{
+                $NextTripStart = null;
+                }
+                
+                if($NextTripStart != null AND $TripEnd != null){
+                  //  dd('ndashaya...');
+                $interval =  date_diff(date_create($NextTripStart->Time),date_create($TripEnd->Time)); 
+    
+                $minutes = $interval->days * 24 * 60; 
+                $minutes += $interval->h * 60; 
+                $minutes += $interval->i; 
+    
+            //    dd($minutes);
+                if($minutes < 10){
+    
+                  $updateinbetween =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$TripEnd->id, $NextTripStart->id])->update([
+    
+                   'TripTest' => 'Trip in progress',
+                   'Trip' => '1'
+                ]);
+                }
+                
+             }
+    
+    
+           }
+
+         }
+
+         dd('done..');
+
+        }
+
   
     public function index()
     {
         ini_set('max_execution_time', 3600); // 3600 seconds = 60 minutes
          set_time_limit(3600);
+
+
+         $updateinbetween =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [1, 200])->update([
+
+            'Truck' => 'SL199 KCD488MP'
+
+        ]);
+
+         //  dd('done');
+
+
+
+
 
 //             dd('loading.....');
 //         //COUNT COLUMN
@@ -574,7 +610,7 @@ class BaselineController extends Controller
             
          $nextTrip = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id + 1)->first(); 
 
-         if($currentTrip->OnTheRoad == "on the road" && $nextTrip == "False"){
+         if($currentTrip->OnTheRoad == "on the road" && $nextTrip->OnTheRoad == "False"){
 
             $test = "Trip Ended";
 
@@ -752,8 +788,13 @@ class BaselineController extends Controller
      */
     public function timeDifference()
     {
+        ini_set('max_execution_time', 3600); // 3600 seconds = 60 minutes
+        set_time_limit(3600);
+
         $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
         $truckData = $truckData->take(2);
+
+       // dd($truckData);
    
          foreach ($truckData as $truckCode => $rows) {
      
@@ -786,6 +827,9 @@ class BaselineController extends Controller
     public function cycleTime()
     {
         
+        ini_set('max_execution_time', 3600); // 3600 seconds = 60 minutes
+        set_time_limit(3600);
+
         $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
         $truckData = $truckData->take(2);
    
@@ -841,6 +885,9 @@ class BaselineController extends Controller
      */
     public function movingStationary()
     {
+        ini_set('max_execution_time', 3600); // 3600 seconds = 60 minutes
+        set_time_limit(3600);
+
         $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
         $truckData = $truckData->take(2);
    
@@ -884,6 +931,9 @@ class BaselineController extends Controller
     public function truckLogic()
     {       
         
+        ini_set('max_execution_time', 3600); // 3600 seconds = 60 minutes
+        set_time_limit(3600);
+
         $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
        $truckData = $truckData->take(2);
   
