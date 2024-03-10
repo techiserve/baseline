@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Imports;
+
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+
+class YourImport implements ToModel, WithHeadingRow, WithChunkReading
+{
+    public function model(array $row)
+    {
+        DB:: DB::connection('mysql')->table('baseline')->insert([
+            'Date' => $row['gps_date'],
+            'Truck' => $row['registration_nr'],
+            'Description' => $row['message_type'],
+            'Distance' => $row['distance'],
+            'HighSpeed' => $row['speed_max'],
+            'Latitude' => $row['latitude'],
+            'Longitude' => $row['longitude'],
+            // Add more columns as needed
+        ]);
+    }
+
+    public function chunkSize(): int
+    {
+        return 1000; // Adjust the chunk size as needed
+    }
+}

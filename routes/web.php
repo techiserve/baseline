@@ -17,7 +17,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
+Route::get('/BaselineImport', [BaselineController::class, 'BaselineImportCreate'])->name('BaselineImport');
+Route::post('/BaselineImport/create', [BaselineController::class, 'BaselineImport'])->name('BaselineImport.create');
 Route::get('/baseline', [BaselineController::class, 'index'])->name('index');
 Route::get('/geofence', [BaselineController::class, 'geofence'])->name('geofence');
 Route::get('/timeDifference', [BaselineController::class, 'timeDifference'])->name('timeDifference');
@@ -35,3 +36,4 @@ Route::get('/latDifference', [BaselineController::class, 'LatDifference'])->name
 Route::get('/longDifference', [BaselineController::class, 'LongDifference'])->name('LongDifference');
 //Route::get('/tripEnd', [BaselineController::class, 'LatDifference'])->name('LatDifference');
 Route::get('/truckLogic', [BaselineController::class, 'truckLogic'])->name('truckLogic');
+
