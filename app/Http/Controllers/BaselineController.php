@@ -963,13 +963,16 @@ class BaselineController extends Controller
      */
     public function timeDifference()
     {
+
         ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
         set_time_limit(360000000);
+
+        dd('testing');
 
         $truckData = DB::connection('mysql')->table('baseline')->groupBy('Truck')->orderBy('id')->get();
         $truckData = $truckData->take(1);
 
-       dd($truckData);
+       
    
          foreach ($truckData as $truckCode => $rows) {
      
