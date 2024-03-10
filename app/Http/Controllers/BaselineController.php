@@ -969,12 +969,12 @@ class BaselineController extends Controller
         $truckData = DB::connection('mysql')->table('baseline')->groupBy('Truck')->orderBy('id')->get();
         $truckData = $truckData->take(1);
 
-     //   dd($truckData);
+       dd($truckData);
    
          foreach ($truckData as $truckCode => $rows) {
      
-         $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->where('id', '!=', $rows->id)->orderBy('Date')->orderBy('Time')->get();
-             dd($trucks);
+         $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->take(5)->get();
+            // dd($trucks);
           foreach ($trucks as  $truckrows => $trip) {
 
 
@@ -988,8 +988,14 @@ class BaselineController extends Controller
 
         //     'Time' => $time 
         //  ]); 
+        if($truckrows  > 0){
 
           $nextIndex = $truckrows - 1;
+        }else{
+          $nextIndex = 0;
+        }
+
+          
             
          $previousTrip = DB::connection('mysql')->table('baseline')->where('id', '=',  $trucks[$nextIndex]->id)->first(); 
 
@@ -1000,9 +1006,11 @@ class BaselineController extends Controller
             'TimeDifference' => $interval->format('%H:%I:%S')
          ]); 
 
-         dd('done...');
+        
 
         }
+
+        dd('done...');
 
       }
    
