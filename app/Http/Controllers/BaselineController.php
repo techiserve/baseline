@@ -969,7 +969,7 @@ class BaselineController extends Controller
 
         
 
-        $truckData = DB::connection('mysql')->table('baseline')->groupBy('Truck')->orderBy('id')->count();
+        $truckData = DB::connection('mysql')->table('baseline')->groupBy('Truck')->orderBy('id')->get();
         $truckData = $truckData->take(1);
 
         dd($truckData);
