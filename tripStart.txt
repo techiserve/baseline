@@ -1,0 +1,32 @@
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        $startIndex = $truckrows - 16;
+            $endIndex = $truckrows - 1;
+              //dd($sixth[0]);
+              $updatetripprogress = DB::connection('mysql')->table('baseline')->whereBetween('Time', [$trucks[$startIndex]->Time, $trucks[$endIndex]->Time])->where('Truck', '=', $trip->Truck)->where('Date', '=', $trip->Date)->update([
+
+                'TripStart' => 'Trip in progress'
+
+              ]);   
