@@ -260,8 +260,7 @@ class BaselineController extends Controller
         $truckData = $truckData->take(1);
    
          foreach ($truckData as $truckCode => $rows) {
-
-         
+      
          $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->get();
          //$prevTruck =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->where('id', '=', $rows->id)->orderBy('Date')->orderBy('Time')->first();
           //  dd($trucks);
@@ -400,7 +399,7 @@ class BaselineController extends Controller
                    ]);
             }
 
-            if($currentTrip == 'Trip in progress' AND $nextTrip->TripStart == 'None'){
+            if($currentTrip == 'Trip in progress' AND $trip->TripEnd == 'Trip Ended'){
 
                 $updatetriptest = DB::connection('mysql')->table('baseline')->where('id', '=', $trip->id)->update([
 
