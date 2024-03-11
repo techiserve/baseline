@@ -257,7 +257,7 @@ class BaselineController extends Controller
         set_time_limit(360000000);
 
         $truckData = DB::connection('mysql')->table('baseline')->groupBy('Truck')->orderBy('id')->get();
-        $truckData = $truckData->take(2);
+        $truckData = $truckData->take(1);
    
          foreach ($truckData as $truckCode => $rows) {
 
@@ -298,8 +298,6 @@ class BaselineController extends Controller
 
                 'TripStart' => 'Trip in progress'
             ]);
-
-         
 
             // $updateinbetween =  DB::connection('mysql')->table('baseline')->whereBetween('id', [$sixthRow->id ,  $prev])->update([
 
