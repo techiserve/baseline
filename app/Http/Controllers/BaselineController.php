@@ -88,16 +88,24 @@ class BaselineController extends Controller
         set_time_limit(36000000);
 
         $truckData = DB::connection('mysql')->table('baseline')->groupBy('Truck')->orderBy('id')->get();
-      //  $truckData = $truckData->take(2);
+        $truckData = $truckData->take(1);
    
          foreach ($truckData as $truckCode => $rows) {
      
-         $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->where('id', '!=', $rows->id)->orderBy('Date')->orderBy('Time')->get();
-          //   dd($trucks);
-        foreach ($trucks as $trip) {
+         $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->get();
+            // dd($trucks);
+        foreach ($trucks as $truckrows => $trip) {
+
          $currentTrip = DB::connection('mysql')->table('baseline')->where('id', '=', $trip->id)->first(); 
-            
-         $previousTrip = DB::connection('mysql')->table('baseline')->where('id', '=', $trip->id - 1)->first(); 
+
+         if($truckrows  > 0){
+
+          $nextIndex = $truckrows - 1;
+        }else{
+          $nextIndex = 0;
+        }
+
+        $previousTrip = DB::connection('mysql')->table('baseline')->where('id', '=',  $trucks[$nextIndex]->id)->first();   
 
          $interval =  $currentTrip->Latitude - $previousTrip->Latitude;        
        //  dd($interval);
