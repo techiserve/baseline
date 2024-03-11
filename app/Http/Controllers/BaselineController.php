@@ -1103,12 +1103,12 @@ class BaselineController extends Controller
         set_time_limit(3600000000);
 
         $truckData = DB::connection('mysql')->table('baseline')->groupBy('Truck')->orderBy('id')->get();
-       // $truckData = $truckData->take(2);
+        $truckData = $truckData->take(1);
    
          foreach ($truckData as $truckCode => $rows) {
      
-         $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->where('id', '>', $rows->id)->orderBy('Date')->orderBy('Time')->get();
-          //   dd($trucks);
+         $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->take(5)->get();
+           //  dd($trucks);
         foreach ($trucks as $trip) {
 
             if($trip->CoordinateTest == 0){
