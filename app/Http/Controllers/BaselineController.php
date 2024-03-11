@@ -134,7 +134,7 @@ class BaselineController extends Controller
          foreach ($truckData as $truckCode => $rows) {
      
          $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->take(5)->get();
-         dd($trucks);
+        // dd($trucks);
 
         foreach ($trucks as $trip) {
         
