@@ -169,15 +169,22 @@ class BaselineController extends Controller
         set_time_limit(36000000);
 
         $truckData = DB::connection('mysql')->table('baseline')->groupBy('Truck')->orderBy('id')->get();
-      //  $truckData = $truckData->take(2);
+        $truckData = $truckData->take(1);
    
          foreach ($truckData as $truckCode => $rows) {
      
          $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->where('id', '!=', $rows->id)->orderBy('Date')->orderBy('Time')->get();
          $prevTruck =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->where('id', '=', $rows->id)->orderBy('Date')->orderBy('Time')->first();
           //   dd($trucks);
-        foreach ($trucks as $trip) {
+        foreach ($trucks as  $trip) {
 
+        //  if($truckrows  > 0){
+
+        //   $nextIndex = $truckrows - 1;
+        // }else{
+        //   $nextIndex = 0;
+        // }
+            
            $prev = $prevTruck->id;
         //$columnName = "Stationary/Moving";
         $currentTrip = $trip->StationaryMoving;
@@ -188,6 +195,7 @@ class BaselineController extends Controller
        //  dd($trip->StationaryMoving,$previousFullTrip->StationaryMoving);
            $currentCount =  $previousFullTrip->Count + 1;
            $updateCount = DB::connection('mysql')->table('baseline')->where('id', '=', $trip->id)->update([
+
                'Count' => $currentCount
            ]);
         }else{
