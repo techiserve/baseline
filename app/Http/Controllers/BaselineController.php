@@ -807,7 +807,7 @@ class BaselineController extends Controller
          $currentTrip = DB::connection('mysql')->table('baseline')->where('id', '=', $trip->id)->first(); 
             
          $nextTrip = DB::connection('mysql')->table('baseline')->where('id', '=', $trucks[$nextIndex]->id)->first(); 
-
+           //dd($trucks,$nextTrip,$truckrows);  
          if($currentTrip->OnTheRoad == "on the road" && $nextTrip->OnTheRoad == "False"){
 
             $test = "Trip Ended";
