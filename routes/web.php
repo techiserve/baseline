@@ -30,7 +30,7 @@ Route::get('/tripStart', [BaselineController::class, 'TripStart'])->name('TripSt
 Route::get('/tripTest', [BaselineController::class, 'TripTest'])->name('TripTest');
 Route::get('/TripTestUpdated', [BaselineController::class, 'TripTestUpdated'])->name('TripTestUpdated');
 Route::get('/tripEnd', [BaselineController::class, 'tripEnd'])->name('tripEnd');
-Route::get('/coordinateTest', [BaselineController::class, 'coordinateTest'])->name('coordinateTest');
+Route::get('/coordinateTest', [BaselineController::class, 'CoordinateTest'])->name('coordinateTest');
 Route::get('/longDifference', [BaselineController::class, 'LongDifference'])->name('LongDifference');
 Route::get('/latDifference', [BaselineController::class, 'LatDifference'])->name('LatDifference');
 //Route::get('/longDifference', [BaselineController::class, 'LongDifference'])->name('LongDifference');
