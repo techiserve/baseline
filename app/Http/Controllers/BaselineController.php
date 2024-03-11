@@ -260,32 +260,36 @@ class BaselineController extends Controller
         $truckData = $truckData->take(1);
    
          foreach ($truckData as $truckCode => $rows) {
-      
-         $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->get();
-         //$prevTruck =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->where('id', '=', $rows->id)->orderBy('Date')->orderBy('Time')->first();
+
+         
+         $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->where('id', '!=', $rows->id)->orderBy('Date')->orderBy('Time')->get();
+         $prevTruck =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->where('id', '=', $rows->id)->orderBy('Date')->orderBy('Time')->first();
           //  dd($trucks);
         foreach ($trucks as $truckrows => $trip) {
             
+          // if($truckrows == 20){
+
+          //   $trucksArray = $trucks->toArray(); 
+          //   $seventeenth = array_slice($trucksArray,$truckrows - 17, 1);
+          //   $seventeenthRow = end($seventeenth);
+          //   dd($truckrows,$seventeenthRow,$trip,$seventeenth);
+
+          // }
           
             $currentTrip = $trip->OnTheRoad;
-        
-            if($truckrows  > 0){
-
-              $prev  = $truckrows - 1;
-            }else{
-              $prev  = 0;
-            }
+            $prev = $prevTruck->id;
          // dd($currentTrip);
-        $previousFullTrip = DB::connection('mysql')->table('baseline')->where('id', '=',  $trucks[$prev]->id)->first();
+        $previousFullTrip = DB::connection('mysql')->table('baseline')->where('id', '=',  $prev)->first();
        // dd($previousFullTrip);
 
           if($currentTrip == 'on the road' AND $previousFullTrip->OnTheRoad == 'False'){
 
-            $seventeenth = $truckrows - 16;
-           
+            $trucksArray = $trucks->toArray(); 
+            $seventeenth = array_slice($trucksArray,$truckrows - 17, 1);
+            $seventeenthRow = end($seventeenth);
            // dd($truckrows,$seventeenthRow,$trip);
 
-            $updatetripstart = DB::connection('mysql')->table('baseline')->where('id', '=', $trucks[$seventeenth]->id)->where('Truck', '=', $rows->Truck)->update([
+            $updatetripstart = DB::connection('mysql')->table('baseline')->where('id', '=', $seventeenthRow->id)->where('Truck', '=', $rows->Truck)->update([
 
                 'TripStart' => 'Trip Start'
             ]);
@@ -300,22 +304,22 @@ class BaselineController extends Controller
             //     'TripStart' => 'Trip in progress'
             // ]);
 
-              //  $startIndex = $truckrows - 16;
-              // $endIndex = $truckrows - 1;
+               $startIndex = $truckrows - 16;
+              $endIndex = $truckrows - 1;
 
-              // for ($i = $startIndex; $i <= $endIndex; $i++) {
-              // // Perform your update logic here
+              for ($i = $startIndex; $i <= $endIndex; $i++) {
+              // Perform your update logic here
             
-              // $sixth = array_slice($trucksArray, $i, 1);
-              // $sixthRow = end($sixth);
-              // //dd($sixth[0]);
-              // $updatetripprogress = DB::connection('mysql')->table('baseline')->where('id', '=', $sixth[0]->id)->update([
+              $sixth = array_slice($trucksArray, $i, 1);
+              $sixthRow = end($sixth);
+              //dd($sixth[0]);
+              $updatetripprogress = DB::connection('mysql')->table('baseline')->where('id', '=', $sixth[0]->id)->update([
 
-              //   'TripStart' => 'Trip in progress'
+                'TripStart' => 'Trip in progress'
 
-              // ]);
+              ]);
 
-              // }
+              }
 
             //  dd('lets see');
 
@@ -343,7 +347,7 @@ class BaselineController extends Controller
 
           }
 
-         // $prevTruck = $trip;
+          $prevTruck = $trip;
          
         }
 
@@ -399,7 +403,7 @@ class BaselineController extends Controller
                    ]);
             }
 
-            if($currentTrip == 'Trip in progress' AND $trip->TripEnd == 'Trip Ended'){
+            if($currentTrip == 'Trip in progress' AND $nextTrip->TripStart == 'None'){
 
                 $updatetriptest = DB::connection('mysql')->table('baseline')->where('id', '=', $trip->id)->update([
 
