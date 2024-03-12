@@ -408,73 +408,49 @@ class BaselineController extends Controller
         //    dd($truckData);
              foreach ($truckData as $truckCode => $rows) {
          
-             $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->where('Trip', '=' , null)->where('TripTest', '=', 'Trip Ended')->where('id', '!=', $rows->id)->orderBy('Date')->orderBy('Time')->get();
+             //$trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->where('Trip', '=' , null)->where('TripTest', '=', 'Trip Ended')->where('id', '!=', $rows->id)->orderBy('Date')->orderBy('Time')->get();
+             $trucks = DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->where('Trip', '=' , null)->where('id', '!=', $rows->id)->where('TripTest', '=', 'Trip Start')->orWhere('TripTest', '=', 'Trip Ended')->orderBy('Date')->orderBy('Time')->get();
             // dd($trucks);
             foreach($trucks as $truckrows => $trip){
 
-
-              $updateinbetween =  DB::connection('mysql')->table('baseline')->where('id', $trip->id)->update([
+            //   $updateinbetween =  DB::connection('mysql')->table('baseline')->where('id', $trip->id)->update([
     
-                'Trip' => '1'
-             ]);
-
-
-          //    $updateinbetweens =  DB::connection('mysql')->table('baseline')->where('TripStart', "!=", 'Trip Start')->where('TripTest','=', 'Trip Start')->where('Truck','=', $trip->Truck)->update([
-    
-          //     'Trip' => '1'
-          //  ]);
+            //     'Trip' => '1'
+            //  ]);
              
                 $TripEnd = $trip;
-               // dd($TripEnd);
-                if( $TripEnd != null){
+                $nexttrip = $trucks[$truckrows + 1];
+              //  dd($TripEnd,$nexttrip);
 
-                 $NextTripStart = DB::connection('mysql')->table('baseline')->where('TripStart', '=', 'Trip Start')->where('Truck','=', $trip->Truck)->where('Trip', '=' , null)->where('TripTest', '=', 'Trip Start')->whereTime('Time', '>', $TripEnd->Time)->first();
-              //   dd($TripEnd,$NextTripStart);  
-                }else{
-                $NextTripStart = null;
-               // dd('hapana hapana');
-                }
-              //  dd('pane nyaya....');
+                if($TripEnd->TripTest == 'Trip Ended' && $nexttrip->TripTest == 'Trip Start'){
+                //  dd($TripEnd,$nexttrip);
                 
-                if($NextTripStart != null AND $TripEnd != null){
-                  //  dd('ndashaya...');
-                $interval =  date_diff(date_create($NextTripStart->Time),date_create($TripEnd->Time)); 
+                $interval =  date_diff(date_create($TripEnd->Time),date_create($nexttrip->Time)); 
     
                 $minutes = $interval->days * 24 * 60; 
                 $minutes += $interval->h * 60; 
                 $minutes += $interval->i; 
-                   //  dd($minutes );
-                if($minutes < 10){
 
-                  // $startIndex = $truckrows - 16;
-                  // $endIndex = $truckrows - 1;
-    
-                  // for ($i = $startIndex; $i <= $endIndex; $i++) {
-                  // // Perform your update logic here
-                  // $trucksArray = $trucks->toArray(); 
-                  // $sixth = array_slice($trucksArray, $i, 1);
-                  // $sixthRow = end($sixth);
-                  // //dd($sixth[0]);
-                  // $updatetripprogress = DB::connection('mysql')->table('baseline')->where('id', '=', $sixth[0]->id)->update([
-    
-                  //   'TripStart' => 'Trip in progress',
-                  //   'Trip' => '2'
-    
-                  // ]);
-    
-                  // }
-                  //dd($minutes,$TripEnd->id,$NextTripStart->id);
-                  $updateinbetween =  DB::connection('mysql')->table('baseline')->whereBetween('Time', [$TripEnd->Time, $NextTripStart->Time])->where('Truck','=',$trip->Truck)->update([
+                
+                if($minutes < 10){
+                 
+                  $update1 =  DB::connection('mysql')->table('baseline')->where('id','=',$TripEnd->id)->update([
     
                    'TripTest' => 'Trip in progress',
                    'Trip' => '2'
-                ]);
-               // dd('updated trip');
-             
+                  ]);
+
+                  
+                  $update2 =  DB::connection('mysql')->table('baseline')->where('id','=',$nexttrip->id)->update([
+    
+                    'TripTest' => 'Trip in progress',
+                    'Trip' => '2'
+                   ]);
+
+                 //  dd($minutes,$TripEnd,$nexttrip);        
                 }
                 
-             }
-    
+            }
     
            }
 
@@ -943,7 +919,7 @@ class BaselineController extends Controller
       ini_set('max_execution_time', 360000000); // 3600 seconds = 60 minutes
       set_time_limit(3600000000);
 
-      
+
         $lat1Rad = deg2rad($lat1);
         $lon1Rad = deg2rad($lon1);
         $lat2Rad = deg2rad($lat2);
