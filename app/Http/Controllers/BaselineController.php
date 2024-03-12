@@ -867,7 +867,7 @@ class BaselineController extends Controller
         }
 
       //  dd($shortestDistance, $trip->id);
-        if($shortestDistance < 1050){
+        if($shortestDistance < 2000){
 
             $location = $geofence->ZoneName;
             $tripUpdate = DB::connection('mysql')->table('baseline')->where('id', '=', $trip->id)->update([
@@ -892,8 +892,8 @@ class BaselineController extends Controller
             
      }else{
         //dd('circle');           
-        ini_set('max_execution_time', 3600); // 3600 seconds = 60 minutes
-         set_time_limit(3600);
+        ini_set('max_execution_time', 360000000); // 3600 seconds = 60 minutes
+         set_time_limit(3600000000);
         // Given test point
         $lat1 = $trip->Latitude;
         $lon1 = $trip->Longitude;
@@ -939,6 +939,11 @@ class BaselineController extends Controller
 
     private function haversineDistance($lat1, $lon1, $lat2, $lon2)
     {
+
+      ini_set('max_execution_time', 360000000); // 3600 seconds = 60 minutes
+      set_time_limit(3600000000);
+
+      
         $lat1Rad = deg2rad($lat1);
         $lon1Rad = deg2rad($lon1);
         $lat2Rad = deg2rad($lat2);
