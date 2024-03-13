@@ -376,6 +376,9 @@ class BaselineController extends Controller
           $endDateTime = new DateTime($endDate);
      
           $count =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->count();
+
+          if($count > 0){
+
          $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->skip(1)->take($count - 1)->get();
            //  dd($trucks);
         foreach ($trucks as  $truckrows => $trip) {
@@ -402,9 +405,13 @@ class BaselineController extends Controller
 
         }
 
+      }
+
         Log::info('Finished trip test on', ['Truck' => $rows->Truck]);
 
-        }
+       
+
+      }
 
 
         }
@@ -434,7 +441,7 @@ class BaselineController extends Controller
           $endDateTime = new DateTime($endDate);
      
           $count =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->whereBetween('Date', [$startDateTime, $endDateTime])->where('TripTest', '=', 'Trip Start')->orWhere('TripTest', '=', 'Trip Ended')->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->count();
-          
+
           if($count > 0){
 
           $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->whereBetween('Date', [$startDateTime, $endDateTime])->where('TripTest', '=', 'Trip Start')->orWhere('TripTest', '=', 'Trip Ended')->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->skip(1)->take($count - 1)->get();
