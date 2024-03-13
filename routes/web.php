@@ -36,4 +36,8 @@ Route::get('/latDifference', [BaselineController::class, 'LatDifference'])->name
 //Route::get('/longDifference', [BaselineController::class, 'LongDifference'])->name('LongDifference');
 //Route::get('/tripEnd', [BaselineController::class, 'LatDifference'])->name('LatDifference');
 Route::get('/truckLogic', [BaselineController::class, 'truckLogic'])->name('truckLogic');
+Route::get('/runBaseline', [BaselineController::class, 'RunBaseline'])->name('RunBaseline');
+Route::get('/executeMethods', [BaselineController::class, 'executeMethods'])->name('executeMethods');
+
+
 
