@@ -434,6 +434,9 @@ class BaselineController extends Controller
           $endDateTime = new DateTime($endDate);
      
           $count =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->whereBetween('Date', [$startDateTime, $endDateTime])->where('TripTest', '=', 'Trip Start')->orWhere('TripTest', '=', 'Trip Ended')->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->count();
+          
+          if($count > 0){
+
           $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->whereBetween('Date', [$startDateTime, $endDateTime])->where('TripTest', '=', 'Trip Start')->orWhere('TripTest', '=', 'Trip Ended')->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->skip(1)->take($count - 1)->get();
     
            //  dd($trucks,$rows->Truck,$count);
@@ -481,6 +484,8 @@ class BaselineController extends Controller
             }
 
            }
+
+          }
 
            Log::info('Finished trip test updated on', ['Truck' => $rows->Truck]);
 
