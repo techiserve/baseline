@@ -1015,7 +1015,7 @@ class BaselineController extends Controller
         ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
         set_time_limit(360000000000);
 
-        dd('testing....');
+       // dd('testing....');
 
         $truckData = DB::connection('mysql')->table('baseline')->where('Truck','=','SL150 JST620MP')
         ->orwhere('Truck','=','SL162 JST599MP')->orwhere('Truck','=','SL163 JST627MP')->orwhere('Truck','=','SL166 JST076MP')->orwhere('Truck','=','SL167 JST618MP')->orwhere('Truck','=','SL168 JST580MP')->orwhere('Truck','=','SL169 JST614MP')
@@ -1032,7 +1032,7 @@ class BaselineController extends Controller
           $endDateTime = new DateTime($endDate);
      
          $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->whereBetween('Date', [$startDateTime, $endDateTime])->orderBy('Date')->orderBy('Time')->get();
-        // dd($trucks);
+         dd($trucks);
           foreach ($trucks as  $truckrows => $trip) {
 
         $currentTrip = DB::connection('mysql')->table('baseline')->where('id', '=', $trip->id)->first(); 
