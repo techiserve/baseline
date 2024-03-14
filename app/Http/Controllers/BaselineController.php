@@ -14,23 +14,23 @@ class BaselineController extends Controller
 {
 
  
-  public function RunBaseline()
-  {
-      // $this->timeDifference();
-      // $this->LongDifference();
-      // $this->LatDifference();
-      // $this->CoordinateTest();
-      // $this->movingStationary();
-      // $this->Count();
-      // $this->OnTheRoad();
-      // $this->TripStart();
-      // $this->tripEnd();
-      // $this->TripTest();
-      // $this->TripTestUpdated();
-      // $this->cycleTime();
-      // $this->geofence();
+  // public function RunBaseline()
+  // {
+  //     // $this->timeDifference();
+  //     // $this->LongDifference();
+  //     // $this->LatDifference();
+  //     // $this->CoordinateTest();
+  //     // $this->movingStationary();
+  //     // $this->Count();
+  //     // $this->OnTheRoad();
+  //     // $this->TripStart();
+  //     // $this->tripEnd();
+  //     // $this->TripTest();
+  //     // $this->TripTestUpdated();
+  //     // $this->cycleTime();
+  //     // $this->geofence();
 
-  }
+  // }
 
 
       public function LongDifference()
@@ -1015,12 +1015,12 @@ class BaselineController extends Controller
         ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
         set_time_limit(360000000000);
 
-       // dd('testing....');
-
         $truckData = DB::connection('mysql')->table('baseline')->where('Truck','=','SL150 JST620MP')
         ->orwhere('Truck','=','SL162 JST599MP')->orwhere('Truck','=','SL163 JST627MP')->orwhere('Truck','=','SL166 JST076MP')->orwhere('Truck','=','SL167 JST618MP')->orwhere('Truck','=','SL168 JST580MP')->orwhere('Truck','=','SL169 JST614MP')
         ->orwhere('Truck','=','SL171 JTC292MP')->orwhere('Truck','=','SL172 JTC283MP')->orwhere('Truck','=','SL173 JTC207MP')->groupBy('Truck')->orderBy('id')->get();
-        
+
+     //   dd($truckData);
+
          foreach ($truckData as $truckCode => $rows) {
 
           Log::info('Started Time Difference on', ['Truck' => $rows->Truck]);
@@ -1032,7 +1032,7 @@ class BaselineController extends Controller
           $endDateTime = new DateTime($endDate);
      
          $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->whereBetween('Date', [$startDateTime, $endDateTime])->orderBy('Date')->orderBy('Time')->get();
-         dd($trucks);
+         //dd($trucks);
           foreach ($trucks as  $truckrows => $trip) {
 
         $currentTrip = DB::connection('mysql')->table('baseline')->where('id', '=', $trip->id)->first(); 
