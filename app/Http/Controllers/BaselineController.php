@@ -960,7 +960,7 @@ class BaselineController extends Controller
 
      }
          Log::info('Baseline Finished', ['Truck' => 'All']);
-
+         die("Execution stopped.");
        dd("Finally done");
 
     }
