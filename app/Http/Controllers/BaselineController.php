@@ -16,21 +16,20 @@ class BaselineController extends Controller
  
   public function RunBaseline()
   {
-      $this->timeDifference();
-      $this->LongDifference();
-      $this->LatDifference();
-      $this->CoordinateTest();
-      $this->movingStationary();
-      $this->Count();
-      $this->OnTheRoad();
-      $this->TripStart();
-      $this->tripEnd();
-      $this->TripTest();
-      $this->TripTestUpdated();
-      $this->cycleTime();
-      $this->geofence();
+      // $this->timeDifference();
+      // $this->LongDifference();
+      // $this->LatDifference();
+      // $this->CoordinateTest();
+      // $this->movingStationary();
+      // $this->Count();
+      // $this->OnTheRoad();
+      // $this->TripStart();
+      // $this->tripEnd();
+      // $this->TripTest();
+      // $this->TripTestUpdated();
+      // $this->cycleTime();
+      // $this->geofence();
 
-  
   }
 
 
