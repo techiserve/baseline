@@ -20,7 +20,7 @@ class BaselineController extends Controller
       // $this->LongDifference();
       // $this->LatDifference();
       // $this->CoordinateTest();
-      // $this->movingStationary();
+      $this->movingStationary();
       $this->Count();
       $this->OnTheRoad();
       $this->TripStart();
