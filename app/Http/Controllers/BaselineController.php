@@ -16,11 +16,11 @@ class BaselineController extends Controller
  
   public function RunBaseline()
   {
-      $this->timeDifference();
-      $this->LongDifference();
-      $this->LatDifference();
-      $this->CoordinateTest();
-      $this->movingStationary();
+      // $this->timeDifference();
+      // $this->LongDifference();
+      // $this->LatDifference();
+      // $this->CoordinateTest();
+      // $this->movingStationary();
       $this->Count();
       $this->OnTheRoad();
       $this->TripStart();
@@ -29,8 +29,6 @@ class BaselineController extends Controller
       $this->TripTestUpdated();
       $this->cycleTime();
       $this->geofence();
-
-
 
   }
 
@@ -200,6 +198,7 @@ class BaselineController extends Controller
           $endDateTime = new DateTime($endDate);
      
           $count =  DB::connection('mysql')->table('baseline')->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->count();
+          if($count > 0){
          $trucks =  DB::connection('mysql')->table('baseline')->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->skip(1)->take($count - 1)->get();
        //  $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->where('id', '!=', $rows->id)->orderBy('Date')->orderBy('Time')->get();
          $prevTruck =  DB::connection('mysql')->table('baseline')->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->first();
@@ -232,12 +231,72 @@ class BaselineController extends Controller
    
        }
 
+      }
+
        Log::info('Finished Count on', ['Truck' => $rows->Truck]);
     
 
       }
 
   
+     }
+
+
+     public function CumulativeTime(){
+
+      ini_set('max_execution_time', 360000000); // 3600 seconds = 60 minutes
+      set_time_limit(360000000);
+ 
+      $truckData = DB::connection('mysql')->table('baseline')->groupBy('Truck')->orderBy('id')->get();
+
+     // dd($truckData->take(1));
+ 
+       foreach ($truckData as $truckCode => $rows) {
+
+        Log::info('Started CumulativeTime', ['Truck' => $rows->Truck]);
+        $startDate = '2023-01-01'; // Replace with your start date
+        $endDate = '2023-01-07';   // Replace with your end date
+
+        // Convert to DateTime objects
+        $startDateTime = new DateTime($startDate);
+        $endDateTime = new DateTime($endDate);
+   
+        $count =  DB::connection('mysql')->table('baseline')->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->count();
+        if($count > 0){
+       $trucks =  DB::connection('mysql')->table('baseline')->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->skip(1)->take($count - 1)->get();
+     //  $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->where('id', '!=', $rows->id)->orderBy('Date')->orderBy('Time')->get();
+       $prevTruck =  DB::connection('mysql')->table('baseline')->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->first();
+           //dd($trucks);
+      foreach ($trucks as  $trip) {
+
+         $prev = $prevTruck->id;
+
+      $currentTrip = $trip->StationaryMoving;
+
+      $previousFullTrip = DB::connection('mysql')->table('baseline')->where('id', '=', $prev)->first();
+ 
+      if($trip->StationaryMoving == 'Stationary' &&  $previousFullTrip->StationaryMoving == 'Stationary'){
+    
+         $currentCount =  $previousFullTrip->TimeDifference + $trip->TimeDifference;
+         $updateCount = DB::connection('mysql')->table('baseline')->where('id', '=', $trip->id)->update([
+
+             'CummulativeTime' => $currentCount
+         ]);
+
+      }
+
+       $prevTruck = $trip;
+ 
+     }
+
+    }
+
+     Log::info('Finished CumulativeTime on', ['Truck' => $rows->Truck]);
+  
+     }
+
+     dd('Done');
+
      }
 
      public function OnTheRoad(){
@@ -306,6 +365,8 @@ class BaselineController extends Controller
         $endDateTime = new DateTime($endDate);
    
         $count =  DB::connection('mysql')->table('baseline')->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->count();
+
+        if($count > 0){
        $trucks =  DB::connection('mysql')->table('baseline')->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->skip(1)->take($count - 1)->get();
        $prevTruck =  DB::connection('mysql')->table('baseline')->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->first();
         //   dd($trucks);
@@ -333,6 +394,8 @@ class BaselineController extends Controller
         $prevTruck = $trip;
        
       }
+
+    }
 
       Log::info('Finished trip start on', ['Truck' => $rows->Truck]);
 
@@ -556,13 +619,8 @@ class BaselineController extends Controller
 
         //  dd($date,$time);
 
- 
 
          //  dd('done');
-
-
-
-
 
 //             dd('loading.....');
 //         //COUNT COLUMN
@@ -782,6 +840,7 @@ class BaselineController extends Controller
         $endDateTime = new DateTime($endDate);
    
         $count =  DB::connection('mysql')->table('baseline')->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->count();
+        if($count > 0){
        $trucks =  DB::connection('mysql')->table('baseline')->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->skip(1)->take($count - 1)->get();
       // $prevTruck =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->whereBetween('Date', [$startDateTime, $endDateTime])->orderBy('Date')->orderBy('Time')->first();
            //dd($trucks);
@@ -817,6 +876,8 @@ class BaselineController extends Controller
         }
 
       }
+
+    }
       Log::info('Finished trip end  on', ['Truck' => $rows->Truck]);
 
       }
@@ -1180,15 +1241,12 @@ class BaselineController extends Controller
       ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
       set_time_limit(360000000000);
      
-      $truckData = DB::connection('mysql')->table('baseline')->where('Truck','=','SL150 JST620MP')
-      ->orwhere('Truck','=','SL162 JST599MP')->orwhere('Truck','=','SL163 JST627MP')->orwhere('Truck','=','SL166 JST076MP')->orwhere('Truck','=','SL167 JST618MP')->orwhere('Truck','=','SL168 JST580MP')->orwhere('Truck','=','SL169 JST614MP')
-      ->orwhere('Truck','=','SL171 JTC292MP')->orwhere('Truck','=','SL172 JTC283MP')->orwhere('Truck','=','SL173 JTC207MP')->groupBy('Truck')->orderBy('id')->get();
+      $truckData = DB::connection('mysql')->table('baseline')->groupBy('Truck')->orderBy('id')->get();
 
- 
        foreach ($truckData as $truckCode => $rows) {
         Log::info('started transfer on', ['Truck' => $rows->Truck]);
         $startDate = '2023-12-01'; // Replace with your start date
-        $endDate = '2023-12-07';   // Replace with your end date
+        $endDate = '2023-12-31';   // Replace with your end date
 
         // Convert to DateTime objects
         $startDateTime = new DateTime($startDate);

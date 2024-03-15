@@ -33,6 +33,7 @@ Route::get('/tripEnd', [BaselineController::class, 'tripEnd'])->name('tripEnd');
 Route::get('/coordinateTest', [BaselineController::class, 'CoordinateTest'])->name('coordinateTest');
 Route::get('/longDifference', [BaselineController::class, 'LongDifference'])->name('LongDifference');
 Route::get('/latDifference', [BaselineController::class, 'LatDifference'])->name('LatDifference');
+Route::get('/CumulativeTime', [BaselineController::class, 'CumulativeTime'])->name('CumulativeTime');
 //Route::get('/longDifference', [BaselineController::class, 'LongDifference'])->name('LongDifference');
 //Route::get('/tripEnd', [BaselineController::class, 'LatDifference'])->name('LatDifference');
 Route::get('/truckLogic', [BaselineController::class, 'truckLogic'])->name('truckLogic');
