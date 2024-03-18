@@ -17,7 +17,7 @@ class BaselineController extends Controller
   public function RunBaseline()
   {
 
-    
+
       // $this->timeDifference();
       // $this->LongDifference();
       // $this->LatDifference();
@@ -25,12 +25,13 @@ class BaselineController extends Controller
       // $this->movingStationary();
       // $this->Count();
       // $this->OnTheRoad();
-      $this->TripStart();
+      // $this->TripStart();
       $this->tripEnd();
       $this->TripTest();
       $this->TripTestUpdated();
       $this->cycleTime();
       $this->geofence();
+      $this->truckLogic();
 
   }
 
@@ -1022,9 +1023,6 @@ class BaselineController extends Controller
      Log::info('Finished geofence on', ['Truck' => $rows->Truck]);
 
      }
-         Log::info('Baseline Finished', ['Truck' => 'All']);
-         die("Execution stopped.");
-       dd("Finally done");
 
     }
 
@@ -1293,7 +1291,9 @@ class BaselineController extends Controller
 
     }
              
-      dd('done...');
+    Log::info('Baseline Finished', ['Truck' => 'All']);
+    dd("Finally done");
+    die("Execution stopped.");
 
     }
 
