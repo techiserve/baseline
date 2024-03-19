@@ -31,7 +31,7 @@ class BaselineController extends Controller
       $this->TripTestUpdated();
       $this->cycleTime();
       $this->geofence();
-      $this->truckLogic();
+      //$this->truckLogic();
 
   }
 
@@ -1319,6 +1319,41 @@ class BaselineController extends Controller
              
  
     }
+
+
+
+
+    public function updateLong()
+    {    
+      
+      ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
+      set_time_limit(360000000000);
+        
+       $trucks =  DB::connection('mysql')->table('baselinetest')->where('id' ,'>', 0)->get();
+    
+      foreach ($trucks as $truckrows =>$trip) {
+
+        Log::info('started transfer on', ['Truck' => $trip->Truck]);
+
+        $baselineTrip = DB::connection('mysql')->table('baseline')->where('id', '=', $trip->BaseId)->first();
+        //dd($baselineTrip,$trip);
+
+        $createTrip = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
+                
+          'Latitude' => $baselineTrip->Latitude,
+          'Longitude' => $baselineTrip->Longitude,
+         
+        ]);
+
+      }
+
+      Log::info('finished transfer on', ['Truck' => 'All']);
+      dd('done');
+
+    }
+             
+ 
+ 
 
     /**
      * Remove the specified resource from storage.

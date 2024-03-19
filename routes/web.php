@@ -34,7 +34,7 @@ Route::get('/coordinateTest', [BaselineController::class, 'CoordinateTest'])->na
 Route::get('/longDifference', [BaselineController::class, 'LongDifference'])->name('LongDifference');
 Route::get('/latDifference', [BaselineController::class, 'LatDifference'])->name('LatDifference');
 Route::get('/CumulativeTime', [BaselineController::class, 'CumulativeTime'])->name('CumulativeTime');
-Route::get('/sortDateTime', [BaselineController::class, 'sortDateTime'])->name('sortDateTime');
+Route::get('/updateLong', [BaselineController::class, 'updateLong'])->name('updateLong');
 Route::get('/CumulativeTime', [BaselineController::class, 'CumulativeTime'])->name('CumulativeTime');
 Route::get('/truckLogic', [BaselineController::class, 'truckLogic'])->name('truckLogic');
 Route::get('/runBaseline', [BaselineController::class, 'RunBaseline'])->name('RunBaseline');
