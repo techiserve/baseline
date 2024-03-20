@@ -434,8 +434,10 @@ class BaselineController extends Controller
         ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
         set_time_limit(360000000);
 
-        $truckData = DB::connection('mysql')->table('baseline')->groupBy('Truck')->orderBy('id')->get();
-        //dd($truckData);
+        $truckDataCount = DB::connection('mysql')->table('baseline')->groupBy('Truck')->orderBy('id')->get();
+        $count = $truckDataCount->count();
+        $truckData = DB::connection('mysql')->table('baseline')->groupBy('Truck')->orderBy('id')->skip(165)->take($count - 1)->get();
+       // dd($truckDataCount,$truckData);
    
          foreach ($truckData as $truckCode => $rows) {
           Log::info('Started trip test on', ['Truck' => $rows->Truck]);
