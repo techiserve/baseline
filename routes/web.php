@@ -37,8 +37,10 @@ Route::get('/CumulativeTime', [BaselineController::class, 'CumulativeTime'])->na
 Route::get('/updateLong', [BaselineController::class, 'updateLong'])->name('updateLong');
 Route::get('/CumulativeTime', [BaselineController::class, 'CumulativeTime'])->name('CumulativeTime');
 Route::get('/truckLogic', [BaselineController::class, 'truckLogic'])->name('truckLogic');
+Route::get('/newBase', [BaselineController::class, 'newBase'])->name('newBase');
 Route::get('/runBaseline', [BaselineController::class, 'RunBaseline'])->name('RunBaseline');
 Route::get('/executeMethods', [BaselineController::class, 'executeMethods'])->name('executeMethods');
+Route::get('/powerBibaseline', [BaselineController::class, 'powerBibaseline'])->name('powerBibaseline');
 
 
 
