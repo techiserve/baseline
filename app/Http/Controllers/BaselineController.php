@@ -1337,13 +1337,13 @@ class BaselineController extends Controller
       ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
       set_time_limit(360000000000);
      
-      $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
+      $truckData = DB::connection('mysql')->table('Bibaselinetest')->groupBy('Truck')->orderBy('id')->get();
      // dd($truckData);
 
        foreach ($truckData as $truckCode => $rows) {
         Log::info('started trip analysis on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
      
-       $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->get();
+       $trucks =  DB::connection('mysql')->table('Bibaselinetest')->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->get();
     //  dd($trucks);
 
       foreach ($trucks as $truckrows =>$trip) {
@@ -1353,7 +1353,7 @@ class BaselineController extends Controller
         $formattedDate = $date->format('Y-m-d');
      //   dd($trip,$formattedDate);
 
-        $update = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
+        $update = DB::connection('mysql')->table('Bibaselinetest')->where('id', '=', $trip->id)->update([
 
         'DateUpdated' => $formattedDate 
 
