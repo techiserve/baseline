@@ -1337,34 +1337,140 @@ class BaselineController extends Controller
       ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
       set_time_limit(360000000000);
      
-      $truckData = DB::connection('mysql')->table('Bibaselinetest')->groupBy('Truck')->orderBy('id')->get();
+      $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
+   //  dd($truckData);
+
+       foreach ($truckData as $truckCode => $rows) {
+
+       $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+
+      foreach ($trucks as $truckrows =>$trip) {
+       
+        Log::info('started trip analysis on', ['Truck' => $rows->Truck,  '#' => $truckrows, 'id' => $trip->id] );
+
+          $nextTripId = $trip->id + 1;
+         $nextTrip =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $nextTripId)->first();
+
+       //  Trip End
+        if($trip->TripClassification == 'Offloading Time' && $nextTrip->TripClassification  != 'to Witbank Yard' && $nextTrip->TripClassification  != 'Offloading Time'){
+
+          $trucks =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
+
+            'TripClassificationv2' => 'Trip End'
+    
+           ]);
+
+        }
+
+        if($trip->TripClassification == "Offloading Time" && $nextTrip->TripClassification  == "to Witbank Yard" ){
+        //  dd($nextTrip);
+          $tripUpdate =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $nextTrip->id )->update([
+
+            'TripClassificationv2' => 'Trip End'
+    
+           ]);
+
+        }
+
+
+        if($trip->TripClassification != 'Offloading Time' && $nextTrip->TripClassification  == 'to Witbank Yard' ){
+
+        //   dd($trip,$trucks[$truckrows+1]);
+           $tripUpdate =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $nextTrip->id )->update([
+ 
+             'TripClassificationv2' => 'Trip End'
+     
+            ]);
+ 
+         }
+
+
+    //    Trip Start
+
+         if($trip->TripClassification == 'Left Witbank Yard (Loading Trip)'){
+
+             $tripUpdate =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id )->update([
+   
+               'TripClassificationv2' => 'Trip Start'
+       
+              ]);
+   
+         }
+
+         
+         if($trip->TripClassification == 'Offloading Time' && $trip->TripClassificationv2  == 'Trip End'){
+
+          $tripUpdate =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $nextTrip->id )->update([
+
+            'TripClassificationv2' => 'Trip Start'
+    
+           ]);
+
+      }
+  
+
+    //Time Calculation
+
+        //     if($trip->TripClassification != 'Offloading Time' && $nextTrip->TripClassification  == 'Offloading Time'){
+
+
+        //       $tripUpdat =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $nextTrip->id )->update([
+
+        //         'CumulativeTripClassification' => $nextTrip->TimeDifferenceMins
+
+        //       ]);
+
+        //     }
+
+          
+
+
+
+      }
+
+    }
+
+    Log::info('Finished trip analysis on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+    dd('done');
+
+
+    }
+
+
+
+
+
+    public function updateTimedIFF(){
+
+      ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
+      set_time_limit(360000000000);
+     
+      $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
      // dd($truckData);
 
        foreach ($truckData as $truckCode => $rows) {
+        
         Log::info('started trip analysis on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
      
-       $trucks =  DB::connection('mysql')->table('Bibaselinetest')->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->get();
-    //  dd($trucks);
+       $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+   //   dd($trucks);
 
       foreach ($trucks as $truckrows =>$trip) {
+          
+        $base =  DB::connection('mysql')->table('baseline')->where('id', '=', $trip->BaseId)->first();
 
-        $dateString = $trip->Date;
-        $date = DateTime::createFromFormat('l, d F Y', $dateString);
-        $formattedDate = $date->format('Y-m-d');
-     //   dd($trip,$formattedDate);
+       $trucks =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
 
-        $update = DB::connection('mysql')->table('Bibaselinetest')->where('id', '=', $trip->id)->update([
+        'TimeDifference' => $base->TimeDifference
 
-        'DateUpdated' => $formattedDate 
-
-         ]);
+       ]);
 
       }
 
 
     }
 
-    Log::info('Finished movingStationary on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+    Log::info('Finished trip analysis on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
     dd('done');
 
 
