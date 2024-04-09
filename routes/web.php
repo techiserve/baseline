@@ -42,6 +42,7 @@ Route::get('/runBaseline', [BaselineController::class, 'RunBaseline'])->name('Ru
 Route::get('/executeMethods', [BaselineController::class, 'executeMethods'])->name('executeMethods');
 Route::get('/BiTripEnd', [BaselineController::class, 'BiTripEnd'])->name('BiTripEnd');
 Route::get('/BiTripStart', [BaselineController::class, 'BiTripStart'])->name('BiTripStart');
+Route::get('/BiTimeCalculation', [BaselineController::class, 'BiTimeCalculation'])->name('BiTimeCalculation');
 
 
 

@@ -1338,7 +1338,7 @@ class BaselineController extends Controller
       set_time_limit(360000000000);
      
       $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
-   //  dd($truckData);
+       //  dd($truckData);
 
        foreach ($truckData as $truckCode => $rows) {
 
@@ -1405,21 +1405,16 @@ class BaselineController extends Controller
   
         ]);
   
-   }
+       }
       }
 
+      }
+
+     Log::info('Finished trip analysis on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+     dd('done');
+
+
     }
-
-    Log::info('Finished trip analysis on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
-    dd('done');
-
-
-    }
-
-
-
-
-
 
 
     public function BiTripStart(){
@@ -1428,7 +1423,7 @@ class BaselineController extends Controller
         set_time_limit(360000000000);
        
         $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
-     //  dd($truckData);
+           //  dd($truckData);
   
          foreach ($truckData as $truckCode => $rows) {
   
@@ -1453,9 +1448,9 @@ class BaselineController extends Controller
            }
     
         
-        if($trip->TripClassification == 'Offloading Time' && $trip->TripClassificationv2  == 'Trip End'){
+          if($trip->TripClassification == 'Offloading Time' && $trip->TripClassificationv2  == 'Trip End'){
     
-         $tripUpdate =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $nextTrip->id )->update([
+          $tripUpdate =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $nextTrip->id )->update([
     
            'TripClassificationv2' => 'Trip Start'
     
@@ -1474,55 +1469,58 @@ class BaselineController extends Controller
     }
 
 
-    public function TimeDifferenceCalculation()
+    public function BiTimeCalculation()
     {
       ini_set('max_execution_time', 360000000); // 3600 seconds = 60 minutes
       set_time_limit(360000000);
  
      $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
 
-     // $truckData = $truckData->take(1);
- 
       foreach ($truckData as $truckCode => $rows) {
 
-        Log::info('Started CumulativeTime', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+        Log::info('Started power BI time calculation', ['Truck' => $rows->Truck,  '#' => $truckCode]);
 
         $count =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->count();
         if($count > 0){
        $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->skip(1)->take($count - 1)->get();
        $prevTruck =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->first();
-        //  dd($trucks);
 
       foreach ($trucks as  $trip) {
 
        $prev = $prevTruck->id;
 
-      $currentTrip = $trip->StationaryMoving;
+      $currentTrip = $trip->TripClassification;
 
-      $previousFullTrip = DB::connection('mysql')->table('baseline')->where('id', '=', $prev)->first();
+      $previousFullTrip = DB::connection('mysql')->table('baselinetest')->where('id', '=', $prev)->first();
  
-      if($trip->StationaryMoving == 'Stationary' &&  $previousFullTrip->StationaryMoving == 'Stationary'){
+      if($trip->TripClassification == 'Offloading Time' &&  $previousFullTrip->TripClassification == 'Offloading Time'){
     
-       if( $previousFullTrip->CumulativeTime == null){
+       // dd($trip,$previousFullTrip);
+       if($previousFullTrip->CumulativeTripClassification == null){
                
-        $cumulativeTime = $previousFullTrip->TimeDifference;
+        $cumulativeTime = $previousFullTrip->TimeDifferenceMins;
 
         }else{
-        $cumulativeTime = $previousFullTrip->CumulativeTime;
+
+        $cumulativeTime = $previousFullTrip->CumulativeTripClassification;
+
         }
-              
-      
-          $time1 = DateTime::createFromFormat('H:i:s',  $cumulativeTime);
-          $time2 = DateTime::createFromFormat('H:i:s', $trip->TimeDifference);
-          // Add the two time intervals
-          $time1->add(new DateInterval('PT' . $time2->format('H') . 'H' . $time2->format('i') . 'M' . $time2->format('s') . 'S'));
-
+                
           // Get the result
-          $result = $time1->format('H:i:s');
-         $updateCount = DB::connection('mysql')->table('baseline')->where('id', '=', $trip->id)->update([
+          $result = $cumulativeTime + $trip->TimeDifferenceMins;
 
-             'CumulativeTime' =>  $result
+         $updateCount = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
+
+             'CumulativeTripClassification' =>  $result
          ]);
+
+
+         $prevUpdateCount = DB::connection('mysql')->table('baselinetest')->where('id', '=', $prev)->update([
+
+          'CumulativeTripClassification' =>  NULL
+
+        ]);
+
 
        }
 
