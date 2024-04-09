@@ -1332,7 +1332,7 @@ class BaselineController extends Controller
     }
 
 
-    public function powerBibaseline(){
+    public function BiTripEnd(){
 
       ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
       set_time_limit(360000000000);
@@ -1384,48 +1384,28 @@ class BaselineController extends Controller
  
          }
 
-
-    //    Trip Start
+  
 
          if($trip->TripClassification == 'Left Witbank Yard (Loading Trip)'){
 
-             $tripUpdate =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id )->update([
-   
-               'TripClassificationv2' => 'Trip Start'
-       
-              ]);
-   
-         }
-
-         
-         if($trip->TripClassification == 'Offloading Time' && $trip->TripClassificationv2  == 'Trip End'){
-
-          $tripUpdate =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $nextTrip->id )->update([
-
+          $tripUpdate =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id )->update([
+  
             'TripClassificationv2' => 'Trip Start'
     
            ]);
-
+  
       }
   
-
-    //Time Calculation
-
-        //     if($trip->TripClassification != 'Offloading Time' && $nextTrip->TripClassification  == 'Offloading Time'){
-
-
-        //       $tripUpdat =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $nextTrip->id )->update([
-
-        //         'CumulativeTripClassification' => $nextTrip->TimeDifferenceMins
-
-        //       ]);
-
-        //     }
-
-          
-
-
-
+      
+      if($trip->TripClassification == 'Offloading Time' && $trip->TripClassificationv2  == 'Trip End'){
+  
+       $tripUpdate =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $nextTrip->id )->update([
+  
+         'TripClassificationv2' => 'Trip Start'
+  
+        ]);
+  
+   }
       }
 
     }
@@ -1433,6 +1413,130 @@ class BaselineController extends Controller
     Log::info('Finished trip analysis on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
     dd('done');
 
+
+    }
+
+
+
+
+
+
+
+    public function BiTripStart(){
+
+        ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
+        set_time_limit(360000000000);
+       
+        $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
+     //  dd($truckData);
+  
+         foreach ($truckData as $truckCode => $rows) {
+  
+         $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+  
+        foreach ($trucks as $truckrows =>$trip) {
+         
+          Log::info('started powerBI trip start on', ['Truck' => $rows->Truck,  '#' => $truckrows, 'id' => $trip->id] );
+  
+            $nextTripId = $trip->id + 1;
+           $nextTrip =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $nextTripId)->first();
+   
+  
+           if($trip->TripClassification == 'Left Witbank Yard (Loading Trip)'){
+  
+            $tripUpdate =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id )->update([
+    
+              'TripClassificationv2' => 'Trip Start'
+      
+             ]);
+    
+           }
+    
+        
+        if($trip->TripClassification == 'Offloading Time' && $trip->TripClassificationv2  == 'Trip End'){
+    
+         $tripUpdate =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $nextTrip->id )->update([
+    
+           'TripClassificationv2' => 'Trip Start'
+    
+          ]);
+    
+         }
+
+        }
+  
+      }
+  
+      Log::info('Finished powerBI trip start', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+      dd('done');
+  
+  
+    }
+
+
+    public function TimeDifferenceCalculation()
+    {
+      ini_set('max_execution_time', 360000000); // 3600 seconds = 60 minutes
+      set_time_limit(360000000);
+ 
+     $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
+
+     // $truckData = $truckData->take(1);
+ 
+      foreach ($truckData as $truckCode => $rows) {
+
+        Log::info('Started CumulativeTime', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+
+        $count =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->count();
+        if($count > 0){
+       $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->skip(1)->take($count - 1)->get();
+       $prevTruck =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->first();
+        //  dd($trucks);
+
+      foreach ($trucks as  $trip) {
+
+       $prev = $prevTruck->id;
+
+      $currentTrip = $trip->StationaryMoving;
+
+      $previousFullTrip = DB::connection('mysql')->table('baseline')->where('id', '=', $prev)->first();
+ 
+      if($trip->StationaryMoving == 'Stationary' &&  $previousFullTrip->StationaryMoving == 'Stationary'){
+    
+       if( $previousFullTrip->CumulativeTime == null){
+               
+        $cumulativeTime = $previousFullTrip->TimeDifference;
+
+        }else{
+        $cumulativeTime = $previousFullTrip->CumulativeTime;
+        }
+              
+      
+          $time1 = DateTime::createFromFormat('H:i:s',  $cumulativeTime);
+          $time2 = DateTime::createFromFormat('H:i:s', $trip->TimeDifference);
+          // Add the two time intervals
+          $time1->add(new DateInterval('PT' . $time2->format('H') . 'H' . $time2->format('i') . 'M' . $time2->format('s') . 'S'));
+
+          // Get the result
+          $result = $time1->format('H:i:s');
+         $updateCount = DB::connection('mysql')->table('baseline')->where('id', '=', $trip->id)->update([
+
+             'CumulativeTime' =>  $result
+         ]);
+
+       }
+
+       $prevTruck = $trip;
+ 
+      }
+
+     }
+
+     Log::info('Finished CumulativeTime on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+  
+     }
+
+     dd('Done');
 
     }
 

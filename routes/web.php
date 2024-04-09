@@ -40,7 +40,8 @@ Route::get('/truckLogic', [BaselineController::class, 'truckLogic'])->name('truc
 Route::get('/newBase', [BaselineController::class, 'newBase'])->name('newBase');
 Route::get('/runBaseline', [BaselineController::class, 'RunBaseline'])->name('RunBaseline');
 Route::get('/executeMethods', [BaselineController::class, 'executeMethods'])->name('executeMethods');
-Route::get('/powerBibaseline', [BaselineController::class, 'powerBibaseline'])->name('powerBibaseline');
+Route::get('/BiTripEnd', [BaselineController::class, 'BiTripEnd'])->name('BiTripEnd');
+Route::get('/BiTripStart', [BaselineController::class, 'BiTripStart'])->name('BiTripStart');
 
 
 
