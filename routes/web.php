@@ -39,10 +39,24 @@ Route::get('/CumulativeTime', [BaselineController::class, 'CumulativeTime'])->na
 Route::get('/truckLogic', [BaselineController::class, 'truckLogic'])->name('truckLogic');
 Route::get('/newBase', [BaselineController::class, 'newBase'])->name('newBase');
 Route::get('/runBaseline', [BaselineController::class, 'RunBaseline'])->name('RunBaseline');
-Route::get('/executeMethods', [BaselineController::class, 'executeMethods'])->name('executeMethods');
+Route::get('/updateLong', [BaselineController::class, 'updateLong'])->name('updateLong');
 Route::get('/BiTripEnd', [BaselineController::class, 'BiTripEnd'])->name('BiTripEnd');
 Route::get('/BiTripStart', [BaselineController::class, 'BiTripStart'])->name('BiTripStart');
 Route::get('/BiTimeCalculation', [BaselineController::class, 'BiTimeCalculation'])->name('BiTimeCalculation');
+
+Route::get('/BiTripStart2', [BaselineController::class, 'BiTripStart2'])->name('BiTripStart2');
+Route::get('/TripTime', [BaselineController::class, 'TripTime'])->name('TripTime');
+Route::get('/LoadingTimes', [BaselineController::class, 'LoadingTimes'])->name('LoadingTimes');
+Route::get('/TripF1', [BaselineController::class, 'TripF1'])->name('TripF1');
+Route::get('/RbayTrips', [BaselineController::class, 'RbayTrips'])->name('RbayTrips');
+Route::get('/ShiftClass', [BaselineController::class, 'ShiftClass'])->name('ShiftClass');
+Route::get('/TonnesMoved', [BaselineController::class, 'TonnesMoved'])->name('TonnesMoved');
+Route::get('/LoadingTimesv2', [BaselineController::class, 'LoadingTimesv2'])->name('LoadingTimesv2');
+Route::get('/TripRoute', [BaselineController::class, 'TripRoute'])->name('TripRoute');
+Route::get('/loadCapacity', [BaselineController::class, 'loadCapacity'])->name('loadCapacity');
+Route::get('/truckmap', [BaselineController::class, 'truckmap'])->name('truckmap');
+Route::get('/fleetboardfuel', [BaselineController::class, 'fleetboardfuel'])->name('fleetboardfuel');
+
 
 
 
