@@ -1347,7 +1347,7 @@ class BaselineController extends Controller
             'verify_peer' => false,
             'verify_peer_name' => false,
             'allow_self_signed' => true
-            
+
             ));
         
         $sslContext = stream_context_create($contextOptions);
@@ -1382,6 +1382,7 @@ class BaselineController extends Controller
 
 
         // }
+        dd('bho');
 
          }
 
