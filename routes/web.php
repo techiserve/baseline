@@ -35,6 +35,7 @@ Route::get('/longDifference', [BaselineController::class, 'LongDifference'])->na
 Route::get('/latDifference', [BaselineController::class, 'LatDifference'])->name('LatDifference');
 Route::get('/CumulativeTime', [BaselineController::class, 'CumulativeTime'])->name('CumulativeTime');
 Route::get('/updateLong', [BaselineController::class, 'updateLong'])->name('updateLong');
+Route::get('/SoapFleetboard', [BaselineController::class, 'SoapFleetboard'])->name('SoapFleetboard');
 Route::get('/CumulativeTime', [BaselineController::class, 'CumulativeTime'])->name('CumulativeTime');
 Route::get('/truckLogic', [BaselineController::class, 'truckLogic'])->name('truckLogic');
 Route::get('/newBase', [BaselineController::class, 'newBase'])->name('newBase');
@@ -58,5 +59,7 @@ Route::get('/truckmap', [BaselineController::class, 'truckmap'])->name('truckmap
 Route::get('/fleetboardfuel', [BaselineController::class, 'fleetboardfuel'])->name('fleetboardfuel');
 
 
-
+Route::get('/TotalDistanceFuel', [BaselineController::class, 'TotalDistanceFuel'])->name('TotalDistanceFuel');
+Route::get('/RouteClassification', [BaselineController::class, 'RouteClassification'])->name('RouteClassification');
+Route::get('/TimeSpentPercentage', [BaselineController::class, 'TimeSpentPercentage'])->name('TimeSpentPercentage');
 
