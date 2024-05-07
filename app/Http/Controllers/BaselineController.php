@@ -16,7 +16,7 @@ class BaselineController extends Controller
 {
 
 
-  
+
 
  
   public function RunBaseline()
@@ -172,7 +172,7 @@ class BaselineController extends Controller
           Log::info('Started coordinate test on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           $startDate = '2024-01-01'; // Replace with your start date
           $endDate = '2024-01-31';   // Replace with your end date
-
+         if($truckCode > 136 ){
           // Convert to DateTime objects
           $startDateTime = new DateTime($startDate);
           $endDateTime = new DateTime($endDate);
@@ -200,6 +200,8 @@ class BaselineController extends Controller
    
 
         }
+        
+      }
 
         Log::info('Finished Coordinate Test on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
 
