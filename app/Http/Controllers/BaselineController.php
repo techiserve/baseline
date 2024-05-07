@@ -21,9 +21,9 @@ class BaselineController extends Controller
 
      // first phase baseline
 
-      $this->timeDifference();
-      $this->LongDifference();
-      $this->LatDifference();
+      // $this->timeDifference();
+      // $this->LongDifference();
+      // $this->LatDifference();
       $this->CoordinateTest();
       $this->movingStationary();
       $this->Count();
