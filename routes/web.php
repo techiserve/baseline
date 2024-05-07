@@ -65,5 +65,7 @@ Route::get('/TimeSpentPercentage', [BaselineController::class, 'TimeSpentPercent
 
 Route::get('/FbCartrack', [BaselineController::class, 'FbCartrack'])->name('FbCartrack');
 Route::get('/FbCartrackDistanceLink', [BaselineController::class, 'FbCartrackDistanceLink'])->name('FbCartrackDistanceLink');
+Route::get('/FleetboardTripDataDistance', [BaselineController::class, 'FleetboardTripDataDistance'])->name('FleetboardTripDataDistance');
+
 
 

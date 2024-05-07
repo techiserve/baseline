@@ -3256,4 +3256,70 @@ class BaselineController extends Controller
              
     }
 
+
+    public function FleetboardTripDataDistance()
+    {
+        
+        ini_set('max_execution_time', 360000000000); // 3600 seconds = 60 minutes
+        set_time_limit(360000000000);
+
+        $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
+   
+        foreach ($truckData as $truckCode => $rows) {
+
+        Log::info('Started fb trip Distance on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+    
+       // $trucks = DB::connection('mysql')->table('baselinetest')->where('id', '=', 17242)->get();
+        $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('TripClassificationv2', '=', 'Trip Start')->orderBy('DateUpdated')->orderBy('Time')->get();
+   
+        foreach ($trucks as  $truckrows => $trip) {
+            
+        $nextTrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id )->where('Truck', '=', $rows->Truck)->where('TripClassificationv2','=', 'Trip End')->first(); 
+    
+        if($nextTrip != null && $trip->FbCartrack == 'M/B'){
+
+        $mota = $trip->Truck;
+       // dd($trip->Truck,$nextTrip);
+        $start = DB::connection('mysql')
+        ->table('novconsumption')
+        ->select(DB::raw('*, ABS(TIMESTAMPDIFF(SECOND, CONCAT(DateUpdated, " ", Time), CONCAT(?, " ", ?))) AS difference'))
+        ->where('Truck', '=', $mota )
+        ->orderBy('difference')
+        ->setBindings([$trip->DateUpdated, $trip->Time,$mota])
+        ->first();
+
+
+        $end = DB::connection('mysql')
+        ->table('novconsumption')
+        ->select(DB::raw('*, ABS(TIMESTAMPDIFF(SECOND, CONCAT(DateUpdated, " ", Time), CONCAT(?, " ", ?))) AS difference'))
+        ->where('Truck', '=', $mota )
+        ->orderBy('difference')
+        ->setBindings([$nextTrip->DateUpdated, $nextTrip->Time,$mota])
+        ->first();
+
+        if($start != null && $end != null){
+     
+          $mileage = (intval($end->Mileage) - intval($start->Mileage))/1000 ;
+         // dd($mileage,$start->Time,$end->Time);
+
+          $updateTruck = DB::connection('mysql')->table('baselinetest')->where('id','=', $nextTrip->id)->update([
+
+            'TotalDistance' => $mileage
+    
+           ]);
+
+        }
+       // dd($end,$nextTrip,$mileage);
+
+         }
+
+        }
+
+        Log::info('Finished fb trip Distance on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+
+       } 
+
+       dd('done');
+
+      }
 }
