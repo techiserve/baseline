@@ -28,7 +28,7 @@ class BaselineController extends Controller
       // $this->LongDifference();
       // $this->LatDifference();
      // $this->CoordinateTest();
-      $this->movingStationary();
+     // $this->movingStationary();
       $this->Count();
       $this->OnTheRoad();
       $this->TripStart();
@@ -55,6 +55,10 @@ class BaselineController extends Controller
 
   }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//First Baseline
 
       public function LongDifference()
     {
@@ -223,7 +227,7 @@ class BaselineController extends Controller
           Log::info('Started count on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           $startDate = '2024-01-01'; // Replace with your start date
           $endDate = '2024-01-31';   // Replace with your end date
-
+          if($truckCode > 136 ){
           // Convert to DateTime objects
           $startDateTime = new DateTime($startDate);
           $endDateTime = new DateTime($endDate);
@@ -263,6 +267,8 @@ class BaselineController extends Controller
        }
 
       }
+
+    }
 
        Log::info('Finished Count on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
     
@@ -1048,9 +1054,28 @@ class BaselineController extends Controller
 
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //Second Baseline (Power BI logic converted to SQL)
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public function truckLogic()
     {    
       
@@ -3273,7 +3298,7 @@ class BaselineController extends Controller
 
         Log::info('Started fb trip Distance on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
     
-       // $trucks = DB::connection('mysql')->table('baselinetest')->where('id', '=', 17242)->get();
+      //  $trucks = DB::connection('mysql')->table('baselinetest')->where('id', '=', 7558)->get();
         $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('TripClassificationv2', '=', 'Trip Start')->orderBy('DateUpdated')->orderBy('Time')->get();
    
         foreach ($trucks as  $truckrows => $trip) {
@@ -3303,17 +3328,23 @@ class BaselineController extends Controller
 
         if($start != null && $end != null){
      
-          $mileage = (intval($end->Mileage) - intval($start->Mileage))/1000 ;
-         // dd($mileage,$start->Time,$end->Time);
+          $mileages = (intval($end->Mileage) - intval($start->Mileage))/1000 ;
+
+          if($mileages <= 0 || $mileages > 10000){
+         
+            $mileages = NULL;
+
+          }
+
+        //  dd($end->Mileage,$start->Mileage,$trip,$nextTrip);
 
           $updateTruck = DB::connection('mysql')->table('baselinetest')->where('id','=', $nextTrip->id)->update([
 
-            'TotalDistance' => $mileage
+            'TotalDistance' => $mileages
     
            ]);
 
-        }
-       // dd($end,$nextTrip,$mileage);
+          }
 
          }
 
