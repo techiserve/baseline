@@ -27,7 +27,7 @@ class BaselineController extends Controller
       // $this->timeDifference();
       // $this->LongDifference();
       // $this->LatDifference();
-      $this->CoordinateTest();
+     // $this->CoordinateTest();
       $this->movingStationary();
       $this->Count();
       $this->OnTheRoad();
@@ -1009,6 +1009,7 @@ class BaselineController extends Controller
           $startDate = '2024-01-01'; // Replace with your start date
           $endDate = '2024-01-31';   // Replace with your end date
           // Convert to DateTime objects
+          if($truckCode > 146 ){
           $startDateTime = new DateTime($startDate);
           $endDateTime = new DateTime($endDate);
      
@@ -1038,6 +1039,8 @@ class BaselineController extends Controller
                 ]);
             }
         }
+
+      }
 
         Log::info('Finished movingStationary on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
 
