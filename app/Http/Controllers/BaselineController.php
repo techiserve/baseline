@@ -200,7 +200,7 @@ class BaselineController extends Controller
    
 
         }
-        
+
       }
 
         Log::info('Finished Coordinate Test on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
@@ -1165,7 +1165,7 @@ class BaselineController extends Controller
       set_time_limit(360000000000);
 
       //   dd('we here....');
-       $truckData =  DB::connection('mysql')->table('baselinetest')->where('Truck','=','SL274 KTW871MP')->groupby('Truck')->orderBy('id')->get();
+       $truckData =  DB::connection('mysql')->table('baselinetest')->groupby('Truck')->orderBy('id')->get();
 
       // dd($truckData);
 
@@ -1190,20 +1190,16 @@ class BaselineController extends Controller
       }
 
        $truckMap =  DB::connection('mysql')->table('truckmap')->where('Make' ,'=', 'MAN')->where('Truck','=', $results )->count();
-     //  dd($truckMap,$results);
        
       if($truckMap > 0){
 
-        $truckCount =  DB::connection('mysql')->table('baselinetest')->where('Truck' ,'=', $results )->orderby('DateUpdated')->orderBy('Time')->count();
-
-        $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck' ,'=', $results  )->orderby('DateUpdated')->orderBy('Time')->get();
+        $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck' ,'=', $rows->Truck )->where('TripClassificationv2', '=', 'Trip Start')->orderby('DateUpdated')->orderBy('Time')->get();
        // dd( $truckCount,$trucks);
        
       foreach ($trucks as $truckrows => $trip) {
 
-        if($truckrows < $truckCount - 1){
           Log::info('started fuel-sub on', ['Truck' => $trip->Truck, 'row #' => $truckrows]);
-        $endtrip = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trucks[$truckrows+1]->id)->first();
+        $endtrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id )->where('TripClassificationv2','=', 'Trip End')->first();
        // dd($trip,$endtrip);
 
         $string2 = $trip->Truck;
@@ -1268,25 +1264,25 @@ class BaselineController extends Controller
         $data1 = json_decode($response1);
         $data2 = json_decode($response2);
 
-         // dd($data1,$data2);
+         // dd($data1,$data2,$trip,$endtrip);
        if($http_code1 == 200 && $http_code2 == 200 ){
 
         if($data1->data->fuel_consumed != 0 && $data2->data->distance != 0){
 
-          $endtrip = DB::connection('mysql')->table('baselinetest')->where('id', '=',  $trip->id)->update([
+          $endtrip = DB::connection('mysql')->table('baselinetest')->where('id', '=',  $endtrip->id)->update([
 
-            'fuelUsed' => $data1->data->fuel_consumed,
-            'distanceCovered' => $data2->data->distance,
-            'fuelConsumption' => 1/($data1->data->fuel_consumed/($data2->data->distance/1000))
+            'TotalFuelUsed' => $data1->data->fuel_consumed,
+            'TotalDistance' => $data2->data->distance/1000,
+            'TotalConsumption' => 1/($data1->data->fuel_consumed/($data2->data->distance/1000))
           ]);
 
         }else{
 
-          $endtrip = DB::connection('mysql')->table('baselinetest')->where('id', '=',  $trip->id)->update([
+          $endtrip = DB::connection('mysql')->table('baselinetest')->where('id', '=',  $endtrip->id)->update([
 
-            'fuelUsed' => $data1->data->fuel_consumed,
-            'distanceCovered' => $data2->data->distance,
-            'fuelConsumption' => 0
+            'TotalFuelUsed' => $data1->data->fuel_consumed,
+            'TotalDistance' => $data2->data->distance/1000,
+            'TotalConsumption' => 0
           ]);
         }
   
@@ -1294,7 +1290,7 @@ class BaselineController extends Controller
 
       //  dd($start_timestamp,$end_timestamp,$data1,$data2);
 
-       }
+  
 
       }
 
