@@ -31,7 +31,7 @@ class BaselineController extends Controller
      // $this->movingStationary();
     //  $this->Count();
     //  $this->OnTheRoad();
-      $this->TripStart();
+     // $this->TripStart();
      $this->tripEnd();
      $this->TripTest();
      $this->TripTestUpdated();
@@ -1061,10 +1061,376 @@ class BaselineController extends Controller
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Second Baseline (Power BI logic converted to SQL)
+    public function Route()
+    {
+
+        ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
+        set_time_limit(3600000000);
+           
+        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck','=','SL140 JTC219MP')->groupBy('Truck')->orderBy('id')->get();
+        // $truckData = $truckData->take(2);
+        //   dd($truckData);
+
+         foreach ($truckData as $truckCode => $rows) {
+
+          Log::info('Started route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+          // Replace with your end date
+       
+         $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+        // dd($trucks);
+        foreach ($trucks as  $truckrows => $trip) {
+        
+         $currentTrip = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->first(); 
+
+         if($truckrows  >= 1){
+
+          $nextIndex = $truckrows - 1;
+               
+         $previousTrip = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=',  $trucks[$nextIndex]->id)->first();          
+       
+    
+        //  dd(number_format($interval,));
+         $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+
+            'Route' => $previousTrip->Geofence .' to '. $trip->Geofence
+         ]); 
+
+    
+
+      }
 
 
+        //first row
+        $temprev =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id - 1)->count(); 
+
+        if($temprev){
+
+         $temprevget =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id - 1)->first(); 
+
+         if($temprevget->Truck != $trip->Truck){
+             
+           $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+
+             'Route' =>  $trip->Geofence
+          ]); 
+          
+         }
+
+        }
+         
+
+       }
+
+        Log::info('Finished route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+
+      }
+
+      dd('done');
+   
+    }
+     
+    public function TimeDifferenceMins()
+    {
+
+        ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
+        set_time_limit(3600000000);
+           
+        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck','=','SL140 JTC219MP')->groupBy('Truck')->orderBy('id')->get();
+        // $truckData = $truckData->take(2);
+        //   dd($truckData);
+
+         foreach ($truckData as $truckCode => $rows) {
+
+          Log::info('Started route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+          // Replace with your end date
+       
+         $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+        // dd($trucks);
+        foreach ($trucks as  $truckrows => $trip) {
+        
+
+         $currentTrip = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->first(); 
+
+         if($truckrows  >= 1){
+
+          $nextIndex = $truckrows - 1;
+
+               
+         $previousTrip = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=',  $trucks[$nextIndex]->id)->first();          
+       
+         $interval =  date_diff(date_create($currentTrip->Time),date_create($previousTrip->Time)); 
+         $totalSeconds = $interval->s + $interval->i * 60 + $interval->h * 3600;
+         $timeDiff = $totalSeconds/60;
+         $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+
+            'TimeDifferenceMins' => $timeDiff,
+            'PositiveEventDuration' => abs($timeDiff/60),
+            'EventDurationHrs' => $timeDiff/60
+         ]); 
+
+      }
 
 
+        //first row
+        $temprev =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id - 1)->count(); 
+
+        if($temprev){
+
+         $temprevget =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id - 1)->first(); 
+
+         if($temprevget->Truck != $trip->Truck){
+             
+           $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+
+            'TimeDifferenceMins' => 0,
+            'PositiveEventDuration' => 0,
+            'EventDurationHrs' => 0
+          ]); 
+          
+         }
+
+        }
+         
+
+      }
+
+        Log::info('Finished route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+
+      }
+
+      dd('done');
+   
+    }
+
+
+    public function GeofenceWithRBayClass()
+    {
+
+        ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
+        set_time_limit(3600000000);
+           
+        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck','=','SL140 JTC219MP')->groupBy('Truck')->orderBy('id')->get();
+        // $truckData = $truckData->take(2);
+        //   dd($truckData);
+
+         foreach ($truckData as $truckCode => $rows) {
+
+          Log::info('Started route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+          // Replace with your end date
+       
+         $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+        // dd($trucks);
+        foreach ($trucks as  $truckrows => $trip) {
+        
+          $geofences =  DB::connection('mysql')->table('powerbigeofences')->get();
+     
+          foreach($geofences as $geofence){
+
+            if($trip->Latitude >= $geofence->Latitudelow && $trip->Latitude <= $geofence->Latitudehigh && $trip->Longitude >= $geofence->Longitudelow && $trip->Longitude <= $geofence->Longitudehigh){
+               
+              $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+  
+                'GeofenceClassNewWithRBayClass' => $geofence->geofence,
+        
+             ]); 
+    
+            }
+
+          }
+
+        }
+
+        Log::info('Finished route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+
+      }
+
+      dd('done');
+   
+    }
+
+    
+    public function GFupdated11()
+    {
+
+        ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
+        set_time_limit(3600000000);
+           
+        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck','=','SL140 JTC219MP')->groupBy('Truck')->orderBy('id')->get();
+        // $truckData = $truckData->take(2);
+        //   dd($truckData);
+
+         foreach ($truckData as $truckCode => $rows) {
+
+          Log::info('Started route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+          // Replace with your end date
+       
+         $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+        // dd($trucks);
+        foreach ($trucks as  $truckrows => $trip) {
+        
+          if($trip->Geofence == null || $trip->Geofence == 'Outside Geofence'){
+
+            $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+  
+              'GFupdated1' => $trip->GeofenceClassNewWithRBayClass,
+      
+           ]); 
+  
+          }else{
+
+            $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+  
+              'GFupdated1' => $trip->Geofence,
+      
+           ]); 
+          }
+
+        }
+
+        Log::info('Finished route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+
+      }
+
+      dd('done');
+   
+    }
+
+
+    public function GFNew11()
+    {
+
+        ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
+        set_time_limit(3600000000);
+           
+        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck','=','SL140 JTC219MP')->groupBy('Truck')->orderBy('id')->get();
+        // $truckData = $truckData->take(2);
+        //   dd($truckData);
+
+         foreach ($truckData as $truckCode => $rows) {
+
+          Log::info('Started route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+          // Replace with your end date
+       
+         $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+        // dd($trucks);
+        foreach ($trucks as  $truckrows => $trip) {
+        
+         $currentTrip = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->first(); 
+
+         if($truckrows  >= 1){
+
+          $nextIndex = $truckrows - 1;
+               
+         $previousTrip = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=',  $trucks[$nextIndex]->id)->first();          
+       
+         if($trip->GFupdated1 == 'Richards Bay Route'){
+
+          $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+
+            'GFnew' =>  'Richards Bay Route'
+         ]); 
+
+         }else{
+
+          $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+
+            'GFnew' => $previousTrip->GFupdated1 .' to '. $trip->GFupdated1
+         ]); 
+
+         }
+        //  dd(number_format($interval,));
+       
+    
+
+      }
+
+
+        //first row
+        $temprev =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id - 1)->count(); 
+
+        if($temprev){
+
+         $temprevget =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id - 1)->first(); 
+
+         if($temprevget->Truck != $trip->Truck){
+
+          if($trip->GFupdated1 == 'Richards Bay Route'){
+        
+           $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+
+             'GFnew' =>  'Richards Bay Route'
+          ]); 
+
+        }else{
+
+          $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+
+            'GFnew' =>  $trip->GFupdated1
+         ]); 
+
+        }
+          
+         }
+
+        }
+         
+
+       }
+
+        Log::info('Finished route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+
+      }
+
+      dd('done');
+   
+    }
+
+
+    public function Classification11()
+    {
+
+        ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
+        set_time_limit(3600000000);
+           
+        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck','=','SL140 JTC219MP')->groupBy('Truck')->orderBy('id')->get();
+        // $truckData = $truckData->take(2);
+        //   dd($truckData);
+
+         foreach ($truckData as $truckCode => $rows) {
+
+          Log::info('Started route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+          // Replace with your end date
+       
+        // $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+        // dd($trucks);FINCHEM
+        $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', 1285)->get();
+        foreach ($trucks as  $truckrows => $trip) {
+        
+          $geofences =  DB::connection('mysql')->table('powerbiclassification')->where('geofence','=', $trip->GFupdated1)->first();
+           dd($geofences,$trip);
+       
+
+            if($trip->GFupdated1 == $geofence->geofence){
+             //  dd($trip,$geofence);
+              $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+  
+                'Classification' => $geofence->activity,
+        
+             ]); 
+    
+            }
+     
+        }
+
+        Log::info('Finished route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+
+      }
+
+      dd('done');
+   
+    }
+
+     
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 

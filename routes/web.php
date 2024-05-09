@@ -34,6 +34,16 @@ Route::get('/coordinateTest', [BaselineController::class, 'CoordinateTest'])->na
 Route::get('/longDifference', [BaselineController::class, 'LongDifference'])->name('LongDifference');
 Route::get('/latDifference', [BaselineController::class, 'LatDifference'])->name('LatDifference');
 Route::get('/CumulativeTime', [BaselineController::class, 'CumulativeTime'])->name('CumulativeTime');
+
+//power to sql 
+Route::get('/Route', [BaselineController::class, 'Route'])->name('Route');
+Route::get('/TimeDifferenceMins', [BaselineController::class, 'TimeDifferenceMins'])->name('TimeDifferenceMins');
+Route::get('/GeofenceWithRBayClass', [BaselineController::class, 'GeofenceWithRBayClass'])->name('GeofenceWithRBayClass');
+Route::get('/GFupdated11', [BaselineController::class, 'GFupdated11'])->name('GFupdated11');
+Route::get('/GFNew11', [BaselineController::class, 'GFNew11'])->name('GFNew11');
+Route::get('/Classification11', [BaselineController::class, 'Classification11'])->name('Classification11');
+//
+
 Route::get('/updateLong', [BaselineController::class, 'updateLong'])->name('updateLong');
 Route::get('/SoapFleetboard', [BaselineController::class, 'SoapFleetboard'])->name('SoapFleetboard');
 Route::get('/CumulativeTime', [BaselineController::class, 'CumulativeTime'])->name('CumulativeTime');
