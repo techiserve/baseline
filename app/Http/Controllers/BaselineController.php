@@ -451,11 +451,11 @@ class BaselineController extends Controller
         $endDateTime = new DateTime($endDate);
    
         $count =  DB::connection('mysql')->table('baselinev2')->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->count();
-          dd($count);
+         // dd($count);
         if($count > 0){
        $trucks =  DB::connection('mysql')->table('baselinev2')->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->skip(1)->take($count - 1)->get();
        $prevTruck =  DB::connection('mysql')->table('baselinev2')->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->first();
-        //   dd($trucks);
+        ////   dd($trucks);
       foreach ($trucks as $truckrows => $trip) {
    
           $currentTrip = $trip->OnTheRoad;
