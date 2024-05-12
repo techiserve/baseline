@@ -36,12 +36,15 @@ Route::get('/latDifference', [BaselineController::class, 'LatDifference'])->name
 Route::get('/CumulativeTime', [BaselineController::class, 'CumulativeTime'])->name('CumulativeTime');
 
 //power to sql 
+Route::get('/PowerBiRunBaseline', [BaselineController::class, 'PowerBiRunBaseline'])->name('PowerBiRunBaseline');
 Route::get('/Route', [BaselineController::class, 'Route'])->name('Route');
 Route::get('/TimeDifferenceMins', [BaselineController::class, 'TimeDifferenceMins'])->name('TimeDifferenceMins');
 Route::get('/GeofenceWithRBayClass', [BaselineController::class, 'GeofenceWithRBayClass'])->name('GeofenceWithRBayClass');
 Route::get('/GFupdated11', [BaselineController::class, 'GFupdated11'])->name('GFupdated11');
 Route::get('/GFNew11', [BaselineController::class, 'GFNew11'])->name('GFNew11');
 Route::get('/Classification11', [BaselineController::class, 'Classification11'])->name('Classification11');
+Route::get('/ClassNew11', [BaselineController::class, 'ClassNew11'])->name('ClassNew11');
+Route::get('/TripClassification', [BaselineController::class, 'TripClassification'])->name('TripClassification');
 //
 
 Route::get('/updateLong', [BaselineController::class, 'updateLong'])->name('updateLong');

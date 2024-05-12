@@ -18,7 +18,7 @@ class BaselineController extends Controller
 
 
 
- 
+ //run complete baseline
   public function RunBaseline()
   {
 
@@ -31,7 +31,7 @@ class BaselineController extends Controller
      // $this->movingStationary();
     //  $this->Count();
     //  $this->OnTheRoad();
-     // $this->TripStart();
+      $this->TripStart();
      $this->tripEnd();
      $this->TripTest();
      $this->TripTestUpdated();
@@ -56,10 +56,32 @@ class BaselineController extends Controller
   }
 
 
+  //run powerbi baseline
+  public function PowerBiRunBaseline()
+  {
+
+     // first phase baseline
+
+      $this->Route();
+     $this->TimeDifferenceMins();
+     $this->GeofenceWithRBayClass();
+     $this->GFupdated11();
+     $this->GFNew11();
+     $this->Classification11();
+     $this->ClassNew11();
+     $this->TripClassification();
+  
+
+  }
+
+
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //First Baseline
 
+     //calculates differences between consecutive longitudes
       public function LongDifference()
     {
 
@@ -110,6 +132,7 @@ class BaselineController extends Controller
    
     }
 
+       //calculates differences between consecutive latitude
     public function LatDifference()
     {
         ini_set('max_execution_time', 36000000); // 3600 seconds = 60 minutes
@@ -161,6 +184,7 @@ class BaselineController extends Controller
  
     }
 
+          //prints 1 or 0 if latdiff or longdiff is less than 0.0001
     public function CoordinateTest()
     {
         ini_set('max_execution_time', 360000000); // 3600 seconds = 60 minutes
@@ -213,6 +237,8 @@ class BaselineController extends Controller
    
     }
  
+
+    //counts whenever there is a consecutive value of 1 in previous columnss
      public function Count(){
 
         ini_set('max_execution_time', 360000000); // 3600 seconds = 60 minutes
@@ -351,7 +377,7 @@ class BaselineController extends Controller
      dd('Done');
 
  }
-
+        //prints on the road if count is greater than 17 and movingstationary field says moving
      public function OnTheRoad(){
 
             //On The Road COLUMN
@@ -402,6 +428,8 @@ class BaselineController extends Controller
    
      }
 
+
+     //prints trip start if there is an on the road in column ontheroad then if the next row has false
      public function TripStart(){
       
       ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
@@ -423,7 +451,7 @@ class BaselineController extends Controller
         $endDateTime = new DateTime($endDate);
    
         $count =  DB::connection('mysql')->table('baselinev2')->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->count();
-
+          dd($count);
         if($count > 0){
        $trucks =  DB::connection('mysql')->table('baselinev2')->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->skip(1)->take($count - 1)->get();
        $prevTruck =  DB::connection('mysql')->table('baselinev2')->whereBetween('Date', [$startDateTime, $endDateTime])->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->first();
@@ -462,7 +490,7 @@ class BaselineController extends Controller
 
    }
 
-
+     // combines trip end and trip start 
      public function TripTest(){
 
         ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
@@ -523,7 +551,7 @@ class BaselineController extends Controller
 
    }
 
-
+   // combines trip end and trip start if there is a difference of less than 5 minutes
         public function TripTestUpdated(){
 
             ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
@@ -604,7 +632,7 @@ class BaselineController extends Controller
 
         }
 
-
+      //sort the Date and Time
      public function sortDateTime()
      {
          ini_set('max_execution_time', 36000000); // 3600 seconds = 60 minutes
@@ -636,7 +664,7 @@ class BaselineController extends Controller
 
     }
   
-   
+     //orints trip end if there is on the road followed by false on column on the road
     public function tripEnd()
     {
         ini_set('max_execution_time', 36000000000); // 3600 seconds = 60 minutes
@@ -702,7 +730,7 @@ class BaselineController extends Controller
    
     }
 
- 
+   //calculates if a given co ordinate is inside a geofence
     public function geofence()
     {
         ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
@@ -845,7 +873,7 @@ class BaselineController extends Controller
  
 
     }
-
+     
     private function haversineDistance($lat1, $lon1, $lat2, $lon2)
     {
 
@@ -869,9 +897,7 @@ class BaselineController extends Controller
         return $earthRadius * $c;
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+     //calculates difference between consecutive time stamps
     public function timeDifference()
     {
 
@@ -924,6 +950,7 @@ class BaselineController extends Controller
    
     }
 
+    //calculates cycle time and evene duration between each trip start and trip end
     public function cycleTime()
     {
         
@@ -999,9 +1026,8 @@ class BaselineController extends Controller
      
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+  
+    //prints moving if co ordinate test is 0 or if coordinatetest is 1 and if both highspeed,distance is less than 0 
     public function movingStationary()
     {
         ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
@@ -1061,13 +1087,14 @@ class BaselineController extends Controller
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Second Baseline (Power BI logic converted to SQL)
+    //prints route from geofence field
     public function Route()
     {
 
         ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
         set_time_limit(3600000000);
            
-        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck','=','SL140 JTC219MP')->groupBy('Truck')->orderBy('id')->get();
+        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->groupBy('Truck')->orderBy('id')->get();
         // $truckData = $truckData->take(2);
         //   dd($truckData);
 
@@ -1125,17 +1152,16 @@ class BaselineController extends Controller
 
       }
 
-      dd('done');
    
     }
-     
+     //calculates time difference in mins
     public function TimeDifferenceMins()
     {
 
         ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
         set_time_limit(3600000000);
            
-        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck','=','SL140 JTC219MP')->groupBy('Truck')->orderBy('id')->get();
+        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->groupBy('Truck')->orderBy('id')->get();
         // $truckData = $truckData->take(2);
         //   dd($truckData);
 
@@ -1198,18 +1224,18 @@ class BaselineController extends Controller
 
       }
 
-      dd('done');
+    
    
     }
 
-
+     //prints geofence if geofence column is outside geofence
     public function GeofenceWithRBayClass()
     {
 
         ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
         set_time_limit(3600000000);
            
-        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck','=','SL140 JTC219MP')->groupBy('Truck')->orderBy('id')->get();
+        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->groupBy('Truck')->orderBy('id')->get();
         // $truckData = $truckData->take(2);
         //   dd($truckData);
 
@@ -1244,18 +1270,18 @@ class BaselineController extends Controller
 
       }
 
-      dd('done');
+   
    
     }
 
-    
+    //create the route from one geofence to another
     public function GFupdated11()
     {
 
         ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
         set_time_limit(3600000000);
            
-        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck','=','SL140 JTC219MP')->groupBy('Truck')->orderBy('id')->get();
+        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->groupBy('Truck')->orderBy('id')->get();
         // $truckData = $truckData->take(2);
         //   dd($truckData);
 
@@ -1268,7 +1294,7 @@ class BaselineController extends Controller
         // dd($trucks);
         foreach ($trucks as  $truckrows => $trip) {
         
-          if($trip->Geofence == null || $trip->Geofence == 'Outside Geofence'){
+          if($trip->Geofence == null || $trip->Geofence == 'Outside Geofence' &&  $trip->GeofenceClassNewWithRBayClass != null){
 
             $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
   
@@ -1291,18 +1317,18 @@ class BaselineController extends Controller
 
       }
 
-      dd('done');
+    
    
     }
 
-
+     // trip route to richardsbay trips
     public function GFNew11()
     {
 
         ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
         set_time_limit(3600000000);
            
-        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck','=','SL140 JTC219MP')->groupBy('Truck')->orderBy('id')->get();
+        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->groupBy('Truck')->orderBy('id')->get();
         // $truckData = $truckData->take(2);
         //   dd($truckData);
 
@@ -1381,18 +1407,18 @@ class BaselineController extends Controller
 
       }
 
-      dd('done');
+  
    
     }
 
-
+    //add classification to the columns classification based off GFNew11
     public function Classification11()
     {
 
         ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
         set_time_limit(3600000000);
            
-        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck','=','SL140 JTC219MP')->groupBy('Truck')->orderBy('id')->get();
+        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->groupBy('Truck')->orderBy('id')->get();
         // $truckData = $truckData->take(2);
         //   dd($truckData);
 
@@ -1401,25 +1427,134 @@ class BaselineController extends Controller
           Log::info('Started route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           // Replace with your end date
        
-        // $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+         $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
         // dd($trucks);FINCHEM
-        $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', 1285)->get();
+       // $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=',1466)->get();
         foreach ($trucks as  $truckrows => $trip) {
         
           $geofences =  DB::connection('mysql')->table('powerbiclassification')->where('geofence','=', $trip->GFupdated1)->first();
-           dd($geofences,$trip);
-       
+           
+          if($geofences){
 
-            if($trip->GFupdated1 == $geofence->geofence){
-             //  dd($trip,$geofence);
-              $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+            $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
   
-                'Classification' => $geofence->activity,
+              'Classification' => $geofences->activity,
+      
+           ]);
+
+          }
+
+        }
+       // dd('done');
+
+        Log::info('Finished route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+
+      }
+
+   
+    }
+
+     //check trip activity and updates corresponding activity
+    public function ClassNew11()
+    {
+
+        ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
+        set_time_limit(3600000000);
+           
+        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->groupBy('Truck')->orderBy('id')->get();
+        // $truckData = $truckData->take(2);
+        //   dd($truckData);
+
+         foreach ($truckData as $truckCode => $rows) {
+
+          Log::info('Started route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+          // Replace with your end date
+       
+         $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+        // dd($trucks);
+        foreach ($trucks as  $truckrows => $trip) {
         
-             ]); 
-    
-            }
+         $currentTrip = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->first(); 
+
+         if($truckrows  >= 1){
+
+          $nextIndex = $truckrows - 1;
+               
+         $previousTrip = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=',  $trucks[$nextIndex]->id)->first();          
      
+          $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+
+            'Classnew' => $previousTrip->Classification .' to '. $trip->Classification
+         ]); 
+  
+
+      }
+
+
+        //first row
+        $temprev =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id - 1)->count(); 
+
+        if($temprev){
+
+         $temprevget =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id - 1)->first(); 
+
+         if($temprevget->Truck != $trip->Truck){
+
+           $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+
+             'Classnew' => $trip->Classification
+          ]); 
+
+          
+         }
+
+        }
+         
+
+       }
+
+        Log::info('Finished route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+
+      }
+
+  
+   
+    }
+
+      //final trip classification of the rows
+    public function TripClassification()
+    {
+
+        ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
+        set_time_limit(3600000000);
+           
+        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->groupBy('Truck')->orderBy('id')->get();
+        // $truckData = $truckData->take(2);1267
+        //   dd($truckData);
+
+         foreach ($truckData as $truckCode => $rows) {
+
+          Log::info('Started route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+       
+         $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+       //  $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', 1301)->get();
+
+        foreach ($trucks as  $truckrows => $trip) {
+         
+           $normal =  DB::connection('mysql')->table('tripactivity')->where('activity','=', $trip->Classnew)->first();
+        //  dd($normal,$trip);
+
+           if($normal){
+
+            $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+
+              'TripClassification' => $normal->description 
+  
+           ]); 
+
+           }
+         
+
         }
 
         Log::info('Finished route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
@@ -1429,7 +1564,6 @@ class BaselineController extends Controller
       dd('done');
    
     }
-
      
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
