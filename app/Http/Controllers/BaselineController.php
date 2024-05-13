@@ -895,7 +895,7 @@ class BaselineController extends Controller
         set_time_limit(360000000000);
 
            $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-03-01' , '2024-03-31'])->groupBy('Truck')->orderBy('id')->get();
-        dd($truckData);
+          dd($truckData); 
 
          foreach ($truckData as $truckCode => $rows) {
 
