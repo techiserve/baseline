@@ -24,17 +24,17 @@ class BaselineController extends Controller
 
      // first phase baseline
 
-      $this->timeDifference();
-      $this->LongDifference();
-      $this->LatDifference();
-     $this->CoordinateTest();
-     $this->movingStationary();
-     $this->Count();
-     $this->OnTheRoad();
-      $this->TripStart();
-     $this->tripEnd();
-     $this->TripTest();
-     $this->TripTestUpdated();
+    //   $this->timeDifference();
+    //   $this->LongDifference();
+    //   $this->LatDifference();
+    //  $this->CoordinateTest();
+    //  $this->movingStationary();
+    //  $this->Count();
+    //  $this->OnTheRoad();
+    //   $this->TripStart();
+    //  $this->tripEnd();
+    //  $this->TripTest();
+      $this->TripTestUpdated();
      $this->cycleTime();
      $this->geofence();
 
