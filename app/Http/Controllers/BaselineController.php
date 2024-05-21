@@ -94,7 +94,7 @@ class BaselineController extends Controller
 
           Log::info('Started Longitude Difference on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           $startDate = '2024-04-01'; // Replace with your start date
-        $startDate = '2024-04-30';  // Replace with your end date
+        $endDate = '2024-04-30';  // Replace with your end date
 
           // Convert to DateTime objects
           $startDateTime = new DateTime($startDate);
@@ -143,7 +143,7 @@ class BaselineController extends Controller
 
           Log::info('Started Latitude Difference on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           $startDate = '2024-04-01'; // Replace with your start date
-        $startDate = '2024-04-30'; // Replace with your end date
+        $endDate = '2024-04-30'; // Replace with your end date
 
           // Convert to DateTime objects
           $startDateTime = new DateTime($startDate);
@@ -195,7 +195,7 @@ class BaselineController extends Controller
 
           Log::info('Started coordinate test on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           $startDate = '2024-04-01'; // Replace with your start date
-        $startDate = '2024-04-30'; // Replace with your end date
+        $endDate = '2024-04-30'; // Replace with your end date
          
           $startDateTime = new DateTime($startDate);
           $endDateTime = new DateTime($endDate);
@@ -246,7 +246,7 @@ class BaselineController extends Controller
 
           Log::info('Started count on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           $startDate = '2024-04-01'; // Replace with your start date
-        $startDate = '2024-04-30';  // Replace with your end date
+        $endDate = '2024-04-30';  // Replace with your end date
           
           // Convert to DateTime objects
           $startDateTime = new DateTime($startDate);
@@ -310,7 +310,7 @@ class BaselineController extends Controller
 
         Log::info('Started cummulative count on', ['Truck' => $rows->Truck, '#' => $truckCode]);
         $startDate = '2024-04-01'; // Replace with your start date
-      $startDate = '2024-04-30'; // Replace with your end date
+      $endDate = '2024-04-30'; // Replace with your end date
 
         // Convert to DateTime objects
         $startDateTime = new DateTime($startDate);
@@ -384,7 +384,7 @@ class BaselineController extends Controller
     
               Log::info('Started on the road on', ['Truck' => $rows->Truck, '#' => $truckCode]);
               $startDate = '2024-04-01'; // Replace with your start date
-            $startDate = '2024-04-30';// Replace with your end date
+            $endDate = '2024-04-30';// Replace with your end date
              
           // Convert to DateTime objects
           $startDateTime = new DateTime($startDate);
@@ -435,7 +435,7 @@ class BaselineController extends Controller
 
         Log::info('Started trip start on', ['Truck' => $rows->Truck, '#' => $truckCode]);
         $startDate = '2024-04-01'; // Replace with your start date
-      $startDate = '2024-04-30';  // Replace with your end date
+      $endDate = '2024-04-30';  // Replace with your end date
 
         // Convert to DateTime objects
         $startDateTime = new DateTime($startDate);
@@ -494,7 +494,7 @@ class BaselineController extends Controller
 
           Log::info('Started trip test on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           $startDate = '2024-04-01'; // Replace with your start date
-        $startDate = '2024-04-30';  // Replace with your end date
+        $endDate = '2024-04-30';  // Replace with your end date
   
           // Convert to DateTime objects
           $startDateTime = new DateTime($startDate);
@@ -555,7 +555,7 @@ class BaselineController extends Controller
     
               Log::info('Started trip test updated on', ['Truck' => $rows->Truck, '#' => $truckCode]);
               $startDate = '2024-04-01'; // Replace with your start date
-            $startDate = '2024-04-30';  // Replace with your end date
+            $endDate = '2024-04-30';  // Replace with your end date
   
           // Convert to DateTime objects
           $startDateTime = new DateTime($startDate);
@@ -667,7 +667,7 @@ class BaselineController extends Controller
 
          Log::info('Started trip end  on', ['Truck' => $rows->Truck, '#' => $truckCode]);
          $startDate = '2024-04-01'; // Replace with your start date
-       $startDate = '2024-04-30'; // Replace with your end date
+       $endDate = '2024-04-30'; // Replace with your end date
 
         // Convert to DateTime objects
         $startDateTime = new DateTime($startDate);
@@ -731,7 +731,7 @@ class BaselineController extends Controller
 
           Log::info('Started geofence on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           $startDate = '2024-04-01'; // Replace with your start date
-        $startDate = '2024-04-30'; // Replace with your end date
+        $endDate = '2024-04-30'; // Replace with your end date
   
           // Convert to DateTime objects
           $startDateTime = new DateTime($startDate);
@@ -898,7 +898,7 @@ class BaselineController extends Controller
 
           Log::info('Started Time Difference on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
           $startDate = '2024-04-01'; // Replace with your start date
-        $startDate = '2024-04-30';  // Replace with your end date
+        $endDate = '2024-04-30';  // Replace with your end date
 
           // Convert to DateTime objects
           $startDateTime = new DateTime($startDate);
@@ -951,7 +951,7 @@ class BaselineController extends Controller
 
           Log::info('Started cycle time on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           $startDate = '2024-04-01'; // Replace with your start date
-        $startDate = '2024-04-30'; // Replace with your end date
+        $endDate = '2024-04-30'; // Replace with your end date
   
           // Convert to DateTime objects
           $startDateTime = new DateTime($startDate);
@@ -1026,7 +1026,7 @@ class BaselineController extends Controller
 
           Log::info('Started movingstationary on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           $startDate = '2024-04-01'; // Replace with your start date
-        $startDate = '2024-04-30';  // Replace with your end date
+        $endDate = '2024-04-30';  // Replace with your end date
           // Convert to DateTime objects
          
           $startDateTime = new DateTime($startDate);
