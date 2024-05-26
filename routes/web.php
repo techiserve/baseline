@@ -80,5 +80,8 @@ Route::get('/FbCartrack', [BaselineController::class, 'FbCartrack'])->name('FbCa
 Route::get('/FbCartrackDistanceLink', [BaselineController::class, 'FbCartrackDistanceLink'])->name('FbCartrackDistanceLink');
 Route::get('/FleetboardTripDataDistance', [BaselineController::class, 'FleetboardTripDataDistance'])->name('FleetboardTripDataDistance');
 
+Route::get('/TripTimeTruck', [BaselineController::class, 'TripTimeTruck'])->name('TripTimeTruck');
+
+
 
 

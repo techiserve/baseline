@@ -1569,7 +1569,7 @@ class BaselineController extends Controller
       ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
       set_time_limit(360000000000);
      
-      $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-01-01' , '2024-01-31'])->groupBy('Truck')->orderBy('id')->get();
+      $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-01-01' , '2024-04-30'])->groupBy('Truck')->orderBy('id')->get();
       // $truckData = $truckData->take(2);
       //   dd($truckData);
 
@@ -1577,7 +1577,7 @@ class BaselineController extends Controller
 
         Log::info('Started truck logic on', ['Truck' => $rows->Truck, '#' => $truckCode]);
         $startDate = '2024-01-01'; // Replace with your start date
-        $startDate = '2024-02-31';   // Replace with your end date
+        $startDate = '2024-04-30';   // Replace with your end date
 
         // Convert to DateTime objects
         $startDateTime = new DateTime($startDate);
@@ -1587,7 +1587,7 @@ class BaselineController extends Controller
     
       foreach ($trucks as $truckrows =>$trip) {
 
-        $createTrip = DB::connection('mysql')->table('baselinetest')->insert([
+        $createTrip = DB::connection('mysql')->table('newbase')->insert([
          
           'Date' => $trip->Date,
           'BaseId' => $trip->id,
@@ -1619,7 +1619,8 @@ class BaselineController extends Controller
       Log::info('finished transfer on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
 
     }
-             
+       
+    dd('done');
     }
 
     public function newBase()
@@ -3772,7 +3773,6 @@ class BaselineController extends Controller
              
     }
 
-
     public function FleetboardTripDataDistance()
     {
         
@@ -3844,4 +3844,47 @@ class BaselineController extends Controller
        dd('done');
 
       }
+
+
+      public function TripTimeTruck()
+      {
+  
+        ini_set('max_execution_time', 360000000000); // 3600 seconds = 60 minutes
+        set_time_limit(360000000000);
+  
+        $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
+   
+        foreach ($truckData as $truckCode => $rows) {
+  
+        Log::info('Started Trip Time Truck on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+    
+        $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+     
+        foreach ($trucks as  $truckrows => $trip)
+        {
+
+            $dateTime = DateTime::createFromFormat('Y-m-d', $trip->DateUpdated);
+            $formattedDate = $dateTime->format('d F');
+
+            $time = DateTime::createFromFormat('H:i:s.u', $trip->Time);
+            $sortedTime = $time->format('H:i:s');
+
+            $response = $formattedDate .' @ '.$sortedTime.' & '.$trip->Truck;
+             
+              $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
+  
+                'TruckTimeClassification' => $response,
+     
+             ]); 
+  
+    
+        }
+  
+        Log::info('Finished TripTimeTruck on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+        dd('done');
+  
+       } 
+  
+      }
+  
 }
