@@ -1577,7 +1577,7 @@ class BaselineController extends Controller
 
         Log::info('Started truck logic on', ['Truck' => $rows->Truck, '#' => $truckCode]);
         $startDate = '2024-01-01'; // Replace with your start date
-        $startDate = '2024-04-30';   // Replace with your end date
+        $endDate = '2024-04-30';   // Replace with your end date
 
         // Convert to DateTime objects
         $startDateTime = new DateTime($startDate);
