@@ -82,6 +82,12 @@ Route::get('/FleetboardTripDataDistance', [BaselineController::class, 'Fleetboar
 
 Route::get('/TripTimeTruck', [BaselineController::class, 'TripTimeTruck'])->name('TripTimeTruck');
 
+Route::get('/TripClassificationV3', [BaselineController::class, 'TripClassificationV3'])->name('TripClassificationV3');
+Route::get('/TripClassificationV3Updated', [BaselineController::class, 'TripClassificationV3Updated'])->name('TripClassificationV3Updated');
+Route::get('/TripClassificationV4', [BaselineController::class, 'TripClassificationV4'])->name('TripClassificationV4');
+Route::get('/TripTimeRoutev2', [BaselineController::class, 'TripTimeRoutev2'])->name('TripTimeRoutev2');
+
+
 
 
 

@@ -24,33 +24,39 @@ class BaselineController extends Controller
 
      // first phase baseline
 
-      $this->timeDifference();
-      $this->LongDifference();
-      $this->LatDifference();
-     $this->CoordinateTest();
-     $this->movingStationary();
-     $this->Count();
-     $this->OnTheRoad();
-      $this->TripStart();
-     $this->tripEnd();
-     $this->TripTest();
-      $this->TripTestUpdated();
-     $this->cycleTime();
-     $this->geofence();
+    //   $this->timeDifference();
+    //   $this->LongDifference();
+    //   $this->LatDifference();
+    //  $this->CoordinateTest();
+    //  $this->movingStationary();
+    //  $this->Count();
+    //  $this->OnTheRoad();
+    //   $this->TripStart();
+    //  $this->tripEnd();
+    //  $this->TripTest();
+    //   $this->TripTestUpdated();
+    //  $this->cycleTime();
+    //  $this->geofence();
 
     //second phase baseline
     
-      //  $this->BiTripEnd();
-      //  $this->BiTripStart();
-      //  $this->BiTripStart2();
-      //  $this->BiTimeCalculation();
-      //  $this->LoadingTimes();
-      //  $this->RbayTrips();
-      //  $this->TripTime();
-      //  $this->LoadingTimesv2();
-      // $this->TripF1();
-      // $this->ShiftClass();
-      // $this->TripRoute();
+       $this->BiTripEnd();
+       $this->BiTripStart();
+       $this->BiTripStart2();
+       $this->BiTimeCalculation();
+       $this->LoadingTimes();
+       $this->RbayTrips();
+       $this->TripTime();
+       $this->LoadingTimesv2();
+      $this->TripF1();
+      $this->ShiftClass();
+      $this->TripRoute();
+      $this->FbCartrack();
+      $this->loadCapacity();
+      $this->RouteClassification();
+      $this->TimeSpentPercentage();
+      $this->TripTimeTruck();
+   
    
 
   }
@@ -62,14 +68,12 @@ class BaselineController extends Controller
 
      // first phase baseline
 
-      $this->Route();
+     $this->Route();
      $this->TimeDifferenceMins();
      $this->GeofenceWithRBayClass();
      $this->GFupdated11();
-     $this->GFNew11();
-     $this->Classification11();
-     $this->ClassNew11();
-     $this->TripClassification();
+    $this->TripClassificationV3();
+    $this->TripTimeRoutev2();
   
 
   }
@@ -724,8 +728,8 @@ class BaselineController extends Controller
         ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
         set_time_limit(3600000000000);
     
-          $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-04-01' , '2024-04-30'])->groupBy('Truck')->orderBy('id')->get();     // $truckData = $truckData->take(2);
-        //   dd($truckData);
+          $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();     // $truckData = $truckData->take(2);
+          // dd($truckData);
 
          foreach ($truckData as $truckCode => $rows) {
 
@@ -740,8 +744,8 @@ class BaselineController extends Controller
           //$count =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->whereBetween('Date', [$startDateTime, $endDateTime])->orderBy('Date')->orderBy('Time')->count();
       //   $trucks =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->whereBetween('Date', [$startDateTime, $endDateTime])->orderBy('Date')->orderBy('Time')->skip(1)->take($count - 1)->get();
      
-         $trucks =  DB::connection('mysql')->table('baselinev2')->where('Truck', '=', $rows->Truck)->whereBetween('Date', [$startDateTime, $endDateTime])->where('TripTest', '=', 'Trip Start')->orwhere('TripTest', '=', 'Trip Ended')->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->get();
-          //   dd($trucks);
+         $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+           //  dd($trucks);
         foreach ($trucks as  $truckrows => $trip) {
         
             
@@ -789,7 +793,7 @@ class BaselineController extends Controller
         if($shortestDistance < 2500){
 
             $location = $geofence->ZoneName;
-            $tripUpdate = DB::connection('mysql')->table('baselinev2')->where('id', '=', $trip->id)->update([
+            $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
 
                 'Geofence' => $location
         
@@ -799,7 +803,7 @@ class BaselineController extends Controller
         }else{
 
             $location = "Outside Geofence";
-            $tripUpdate = DB::connection('mysql')->table('baselinev2')->where('id', '=', $trip->id)->update([
+            $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
 
                 'Geofence' => $location
         
@@ -827,7 +831,7 @@ class BaselineController extends Controller
         if($distance < 2500){
 
             $location = $geofence->ZoneName;
-            $tripUpdate = DB::connection('mysql')->table('baselinev2')->where('id', '=', $trip->id)->update([
+            $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
 
                 'Geofence' => $location
         
@@ -837,14 +841,14 @@ class BaselineController extends Controller
         }else{
 
             $location = "Outside Geofence";
-            $tripUpdate = DB::connection('mysql')->table('baselinev2')->where('id', '=', $trip->id)->update([
+            $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
 
                 'Geofence' => $location
         
                ]); 
         }
 
-    
+      //  dd($location);
        }
 
       }
@@ -856,7 +860,7 @@ class BaselineController extends Controller
 
      Log::info('Baseline Finished', ['Truck' => 'All']);
      dd("Finally done");
-     die("Execution stopped.");
+    // die("Execution stopped.");
  
 
     }
@@ -1079,7 +1083,7 @@ class BaselineController extends Controller
         ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
         set_time_limit(3600000000);
            
-        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->groupBy('Truck')->orderBy('id')->get();
+        $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
         // $truckData = $truckData->take(2);
         //   dd($truckData);
 
@@ -1088,21 +1092,21 @@ class BaselineController extends Controller
           Log::info('Started route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           // Replace with your end date
        
-         $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+         $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
         // dd($trucks);
         foreach ($trucks as  $truckrows => $trip) {
         
-         $currentTrip = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->first(); 
+         $currentTrip = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->first(); 
 
          if($truckrows  >= 1){
 
           $nextIndex = $truckrows - 1;
                
-         $previousTrip = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=',  $trucks[$nextIndex]->id)->first();          
+         $previousTrip = DB::connection('mysql')->table('baselinetest')->where('id', '=',  $trucks[$nextIndex]->id)->first();          
        
     
         //  dd(number_format($interval,));
-         $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+         $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
 
             'Route' => $previousTrip->Geofence .' to '. $trip->Geofence
          ]); 
@@ -1113,15 +1117,15 @@ class BaselineController extends Controller
 
 
         //first row
-        $temprev =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id - 1)->count(); 
+        $temprev =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id - 1)->count(); 
 
         if($temprev){
 
-         $temprevget =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id - 1)->first(); 
+         $temprevget =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id - 1)->first(); 
 
          if($temprevget->Truck != $trip->Truck){
              
-           $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+           $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
 
              'Route' =>  $trip->Geofence
           ]); 
@@ -1137,6 +1141,8 @@ class BaselineController extends Controller
 
       }
 
+      //  dd('Done');
+
    
     }
      //calculates time difference in mins
@@ -1146,33 +1152,33 @@ class BaselineController extends Controller
         ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
         set_time_limit(3600000000);
            
-        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->groupBy('Truck')->orderBy('id')->get();
+        $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
         // $truckData = $truckData->take(2);
         //   dd($truckData);
 
          foreach ($truckData as $truckCode => $rows) {
 
-          Log::info('Started route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+          Log::info('Started timediff on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           // Replace with your end date
        
-         $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+         $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
         // dd($trucks);
         foreach ($trucks as  $truckrows => $trip) {
         
 
-         $currentTrip = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->first(); 
+         $currentTrip = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->first(); 
 
          if($truckrows  >= 1){
 
           $nextIndex = $truckrows - 1;
 
                
-         $previousTrip = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=',  $trucks[$nextIndex]->id)->first();          
+         $previousTrip = DB::connection('mysql')->table('baselinetest')->where('id', '=',  $trucks[$nextIndex]->id)->first();          
        
          $interval =  date_diff(date_create($currentTrip->Time),date_create($previousTrip->Time)); 
          $totalSeconds = $interval->s + $interval->i * 60 + $interval->h * 3600;
          $timeDiff = $totalSeconds/60;
-         $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+         $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
 
             'TimeDifferenceMins' => $timeDiff,
             'PositiveEventDuration' => abs($timeDiff/60),
@@ -1183,15 +1189,15 @@ class BaselineController extends Controller
 
 
         //first row
-        $temprev =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id - 1)->count(); 
+        $temprev =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id - 1)->count(); 
 
         if($temprev){
 
-         $temprevget =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id - 1)->first(); 
+         $temprevget =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id - 1)->first(); 
 
          if($temprevget->Truck != $trip->Truck){
              
-           $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+           $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
 
             'TimeDifferenceMins' => 0,
             'PositiveEventDuration' => 0,
@@ -1220,16 +1226,16 @@ class BaselineController extends Controller
         ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
         set_time_limit(3600000000);
            
-        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->groupBy('Truck')->orderBy('id')->get();
+        $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
         // $truckData = $truckData->take(2);
         //   dd($truckData);
 
          foreach ($truckData as $truckCode => $rows) {
 
-          Log::info('Started route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+          Log::info('Started geo on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           // Replace with your end date
        
-         $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+         $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
         // dd($trucks);
         foreach ($trucks as  $truckrows => $trip) {
         
@@ -1239,7 +1245,7 @@ class BaselineController extends Controller
 
             if($trip->Latitude >= $geofence->Latitudelow && $trip->Latitude <= $geofence->Latitudehigh && $trip->Longitude >= $geofence->Longitudelow && $trip->Longitude <= $geofence->Longitudehigh){
                
-              $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+              $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
   
                 'GeofenceClassNewWithRBayClass' => $geofence->geofence,
         
@@ -1266,22 +1272,22 @@ class BaselineController extends Controller
         ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
         set_time_limit(3600000000);
            
-        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->groupBy('Truck')->orderBy('id')->get();
+        $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
         // $truckData = $truckData->take(2);
         //   dd($truckData);
 
          foreach ($truckData as $truckCode => $rows) {
 
-          Log::info('Started route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+          Log::info('Started GFupdated11 on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           // Replace with your end date
        
-         $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+         $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
         // dd($trucks);
         foreach ($trucks as  $truckrows => $trip) {
         
           if($trip->Geofence == null || $trip->Geofence == 'Outside Geofence' &&  $trip->GeofenceClassNewWithRBayClass != null){
 
-            $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+            $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
   
               'GFupdated1' => $trip->GeofenceClassNewWithRBayClass,
       
@@ -1289,7 +1295,7 @@ class BaselineController extends Controller
   
           }else{
 
-            $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+            $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
   
               'GFupdated1' => $trip->Geofence,
       
@@ -1313,37 +1319,37 @@ class BaselineController extends Controller
         ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
         set_time_limit(3600000000);
            
-        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->groupBy('Truck')->orderBy('id')->get();
+        $truckData = DB::connection('mysql')->table('baselinetest')->where('Truck', '=','SL271 KTW865MP')->groupBy('Truck')->orderBy('id')->get();
         // $truckData = $truckData->take(2);
         //   dd($truckData);
 
          foreach ($truckData as $truckCode => $rows) {
 
-          Log::info('Started route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+          Log::info('Started GFnew11 on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           // Replace with your end date
        
-         $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+         $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
         // dd($trucks);
         foreach ($trucks as  $truckrows => $trip) {
         
-         $currentTrip = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->first(); 
+         $currentTrip = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->first(); 
 
          if($truckrows  >= 1){
 
           $nextIndex = $truckrows - 1;
                
-         $previousTrip = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=',  $trucks[$nextIndex]->id)->first();          
+         $previousTrip = DB::connection('mysql')->table('baselinetest')->where('id', '=',  $trucks[$nextIndex]->id)->first();          
        
          if($trip->GFupdated1 == 'Richards Bay Route'){
 
-          $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+          $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
 
             'GFnew' =>  'Richards Bay Route'
          ]); 
 
          }else{
 
-          $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+          $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
 
             'GFnew' => $previousTrip->GFupdated1 .' to '. $trip->GFupdated1
          ]); 
@@ -1357,24 +1363,24 @@ class BaselineController extends Controller
 
 
         //first row
-        $temprev =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id - 1)->count(); 
+        $temprev =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id - 1)->count(); 
 
         if($temprev){
 
-         $temprevget =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id - 1)->first(); 
+         $temprevget =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id - 1)->first(); 
 
          if($temprevget->Truck != $trip->Truck){
 
           if($trip->GFupdated1 == 'Richards Bay Route'){
         
-           $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+           $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
 
              'GFnew' =>  'Richards Bay Route'
           ]); 
 
         }else{
 
-          $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+          $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
 
             'GFnew' =>  $trip->GFupdated1
          ]); 
@@ -1403,25 +1409,22 @@ class BaselineController extends Controller
         ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
         set_time_limit(3600000000);
            
-        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->groupBy('Truck')->orderBy('id')->get();
-        // $truckData = $truckData->take(2);
-        //   dd($truckData);
+        $truckData = DB::connection('mysql')->table('baselinetest')->where('Truck', '=','SL271 KTW865MP')->groupBy('Truck')->orderBy('id')->get();
+      
 
          foreach ($truckData as $truckCode => $rows) {
 
-          Log::info('Started route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
-          // Replace with your end date
-       
-         $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
-        // dd($trucks);FINCHEM
-       // $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=',1466)->get();
+          Log::info('Started Classification on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+  
+         $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+        
         foreach ($trucks as  $truckrows => $trip) {
         
           $geofences =  DB::connection('mysql')->table('powerbiclassification')->where('geofence','=', $trip->GFupdated1)->first();
-           
+  
           if($geofences){
 
-            $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+            $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
   
               'Classification' => $geofences->activity,
       
@@ -1446,28 +1449,28 @@ class BaselineController extends Controller
         ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
         set_time_limit(3600000000);
            
-        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->groupBy('Truck')->orderBy('id')->get();
+        $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
         // $truckData = $truckData->take(2);
         //   dd($truckData);
 
          foreach ($truckData as $truckCode => $rows) {
 
-          Log::info('Started route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+          Log::info('Started ClassNew11 on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           // Replace with your end date
        
-         $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+         $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
         // dd($trucks);
         foreach ($trucks as  $truckrows => $trip) {
         
-         $currentTrip = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->first(); 
+         $currentTrip = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->first(); 
 
          if($truckrows  >= 1){
 
           $nextIndex = $truckrows - 1;
                
-         $previousTrip = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=',  $trucks[$nextIndex]->id)->first();          
+         $previousTrip = DB::connection('mysql')->table('baselinetest')->where('id', '=',  $trucks[$nextIndex]->id)->first();          
      
-          $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+          $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
 
             'Classnew' => $previousTrip->Classification .' to '. $trip->Classification
          ]); 
@@ -1477,15 +1480,15 @@ class BaselineController extends Controller
 
 
         //first row
-        $temprev =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id - 1)->count(); 
+        $temprev =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id - 1)->count(); 
 
         if($temprev){
 
-         $temprevget =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id - 1)->first(); 
+         $temprevget =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id - 1)->first(); 
 
          if($temprevget->Truck != $trip->Truck){
 
-           $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+           $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
 
              'Classnew' => $trip->Classification
           ]); 
@@ -1513,25 +1516,22 @@ class BaselineController extends Controller
         ini_set('max_execution_time', 3600000000); // 3600 seconds = 60 minutes
         set_time_limit(3600000000);
            
-        $truckData = DB::connection('mysql')->table('baselinetestpowerbi')->groupBy('Truck')->orderBy('id')->get();
-        // $truckData = $truckData->take(2);1267
-        //   dd($truckData);
-
+        $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
+  
          foreach ($truckData as $truckCode => $rows) {
 
-          Log::info('Started route on', ['Truck' => $rows->Truck, '#' => $truckCode]);
+          Log::info('Started TripClassification on', ['Truck' => $rows->Truck, '#' => $truckCode]);
        
-         $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
-       //  $trucks =  DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', 1301)->get();
+         $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+       //  $trucks =  DB::connection('mysql')->table('baselinetest')->where('id', '=', 1301)->get();
 
         foreach ($trucks as  $truckrows => $trip) {
          
            $normal =  DB::connection('mysql')->table('tripactivity')->where('activity','=', $trip->Classnew)->first();
         //  dd($normal,$trip);
-
            if($normal){
 
-            $tripUpdate = DB::connection('mysql')->table('baselinetestpowerbi')->where('id', '=', $trip->id)->update([
+            $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
 
               'TripClassification' => $normal->description 
   
@@ -1546,7 +1546,7 @@ class BaselineController extends Controller
 
       }
 
-      dd('done');
+     // dd('done');
    
     }
      
@@ -1587,7 +1587,7 @@ class BaselineController extends Controller
     
       foreach ($trucks as $truckrows =>$trip) {
 
-        $createTrip = DB::connection('mysql')->table('newbase')->insert([
+        $createTrip = DB::connection('mysql')->table('baselinetest')->insert([
          
           'Date' => $trip->Date,
           'BaseId' => $trip->id,
@@ -1910,7 +1910,7 @@ class BaselineController extends Controller
           CURLOPT_HTTPHEADER => array(
             'Content-Type: application/json',
             'SOAPAction: getTripRecord',
-            'Cookie: JSESSIONID=0001HiVta-RNmSQyR17Yuzh9lW6:prdwas03l3m2'
+            'Cookie: JSESSIONID=0001yPiZV64Mx4t9vKNjHCAEGzJ:prdwas01l3m1'
           ),
         ));
 
@@ -2557,7 +2557,7 @@ class BaselineController extends Controller
        } 
 
 
-       dd('done.');
+       //dd('done.');
      
     }
 
@@ -2688,7 +2688,7 @@ class BaselineController extends Controller
 
      } 
 
-     dd('done');
+     // dd('done');
 
    
     }
@@ -2757,7 +2757,7 @@ class BaselineController extends Controller
 
        } 
 
-       dd('done');
+      // dd('done');
 
      
     }
@@ -2987,7 +2987,7 @@ class BaselineController extends Controller
 
       } 
 
-     dd('done');
+    // dd('done');
     }
  
     //12
@@ -3048,7 +3048,7 @@ class BaselineController extends Controller
 
        } 
 
-       dd('done');
+      // dd('done');
 
      
     }
@@ -3080,7 +3080,7 @@ class BaselineController extends Controller
 
       }
       
-      dd('done');
+    //  dd('done');
              
     }
 
@@ -3213,7 +3213,7 @@ class BaselineController extends Controller
 
        } 
 
-       dd('done');
+     //  dd('done');
 
              
     }
@@ -3309,7 +3309,7 @@ class BaselineController extends Controller
 
        } 
 
-       dd('done');
+      // dd('done');
 
              
     }
@@ -3482,7 +3482,7 @@ class BaselineController extends Controller
 
        } 
 
-       dd('done');
+      // dd('done');
 
  
      
@@ -3585,7 +3585,7 @@ class BaselineController extends Controller
 
       } 
 
-     dd('done');
+     //  dd('done');
 
     }
 
@@ -3636,7 +3636,7 @@ class BaselineController extends Controller
 
        } 
 
-       dd('done');
+      // dd('done');
 
      
     }
@@ -3720,9 +3720,8 @@ class BaselineController extends Controller
 
       } 
 
-     dd('done');
+      //  dd('done');
     }
-
 
     public function FbCartrackDistanceLink()
     {    
@@ -3768,7 +3767,7 @@ class BaselineController extends Controller
 
        } 
 
-       dd('done');
+     //  dd('done');
 
              
     }
@@ -3841,7 +3840,7 @@ class BaselineController extends Controller
 
        } 
 
-       dd('done');
+       //  dd('done');
 
       }
 
@@ -3881,10 +3880,267 @@ class BaselineController extends Controller
         }
   
         Log::info('Finished TripTimeTruck on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
-        dd('done');
+        //  dd('done');
   
        } 
   
       }
   
+      
+      /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+     // Updated Trip Data after showing Taps
+  public function TripClassificationV3(){
+
+      ini_set('max_execution_time', 360000000000); // 3600 seconds = 60 minutes
+      set_time_limit(360000000000);
+
+      $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
+     
+      foreach ($truckData as $truckCode => $rows) {
+
+      Log::info('Started Trip Classification V3 on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+
+      $truckupdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $rows->id)->update([
+
+        'TripClassificationv3' => 'Trip End'
+
+      ]);
+
+      $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('id' ,'>', 1)->orderBy('DateUpdated')->orderBy('Time')->get();
+   
+      foreach ($trucks as  $truckrows => $trip) {
+
+ 
+        $prev = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id - 1)->first();
+        $prevv =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id - 2)->first();
+        $next = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id + 1)->first();
+        $nexttt = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id + 2)->first();
+       
+        //Trip Start
+        $currentRoute = DB::connection('mysql')->table('routes')->where('LoadingPoint', '=', $trip->GFupdated1)->first();
+        $prevRoute = DB::connection('mysql')->table('routes')->where('LoadingPoint', '=', $prev->GFupdated1)->first();
+        $recentprev = DB::connection('mysql')->table('baselinetest')->whereNotNull('TripClassificationv3')->where('id','<', $trip->id)->orderBy('id', 'desc')->first();
+
+       // if($currentRoute != null &&  $prevRoute == null && $recentprev->TripClassificationv3 == 'Trip End'){
+
+        if($recentprev->TripClassificationv3 == 'Trip End'){
+
+           $tripEndCheck =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$trip->id, $trip->id+13])
+           ->where('Truck','=', $trip->Truck)
+           ->get();
+
+           $offloadCheck = null;
+
+           foreach($tripEndCheck as $RouteCheck){
+          
+            $routeSet = DB::connection('mysql')->table('routes')->where('LoadingPoint', '=', $trip->GFupdated1)->where('OffloadingPoint','=', $RouteCheck->GFupdated1)->first();
+
+            if($routeSet){
+            
+              $offloadCheck = 1;
+
+            }
+          
+           }
+
+          if($offloadCheck){
+        
+          $prev = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id )->update([
+
+            'TripClassificationv3' => 'Trip Start'
+
+          ]);
+
+          }
+
+        }
+        
+        //Trip End
+        $currentRoute1 = DB::connection('mysql')->table('routes')->where('LoadingPoint', '=', $recentprev->GFupdated1)->where('OffloadingPoint','=', $trip->GFupdated1)->first();
+        $nextRoute = DB::connection('mysql')->table('routes')->where('LoadingPoint', '=', $recentprev->GFupdated1)->where('OffloadingPoint','=', $next->GFupdated1)->first();
+
+        if($currentRoute1 != null && $nextRoute == null && $recentprev->TripClassificationv3 == 'Trip Start'){
+       
+          $prev = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id )->update([
+
+            'TripClassificationv3' => 'Trip End'
+
+          ]);   
+
+        }
+     
+      }
+
+      $truckupdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $rows->id)->update([
+
+        'TripClassificationv3' => null
+
+      ]);
+
+      Log::info('Finished Trip Classification V3 on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+
+       } 
+
+         dd('done');
+ 
+   }
+
+
+   public function TripClassificationV3Updated(){
+
+    ini_set('max_execution_time', 360000000000); // 3600 seconds = 60 minutes
+    set_time_limit(360000000000);
+
+    $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
+
+    foreach ($truckData as $truckCode => $rows) {
+
+    Log::info('Started Trip class v3 updated v2 on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+
+    $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('TripClassificationv3', '=', 'Trip Start')->orderBy('DateUpdated')->orderBy('Time')->get();
+   //$trucks = DB::connection('mysql')->table('baselinetest')->where('id', '=', 324 )->orderBy('DateUpdated')->orderBy('Time')->get();
+
+    foreach ($trucks as  $truckrows => $trip) {
+        
+    $nextTrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id )->where('TripClassificationv3','=', 'Trip End')->first(); 
+
+    if($nextTrip != null){
+      
+    //loading times on trip start
+    $interval =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$trip->id, $nextTrip->id])
+    ->where('GFupdated1','=','Witbank yard')
+    ->orderBy('id', 'desc')
+    ->first();
+ 
+     if($interval){
+
+    $newStartCheck =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$interval->id, $nextTrip->id])
+    ->where('GFupdated1','=', $trip->GFupdated1)
+    ->first();
+
+    
+    if($newStartCheck){
+
+     $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $newStartCheck->id)->update([
+
+      'TripClassificationv3' => 'Trip Start'
+
+     ]); 
+
+     $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
+
+      'TripClassificationv3' => null
+
+     ]); 
+
+     }
+
+    }
+
+     }
+
+    }
+
+    Log::info('Finished Trip class v3 updated on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+
+   } 
+
+   dd('done');
+
+
+     }
+
+
+
+    public function TripTimeRoutev2()
+    {
+           
+           ini_set('max_execution_time', 360000000000); // 3600 seconds = 60 minutes
+           set_time_limit(360000000000);
+   
+           $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
+      
+           foreach ($truckData as $truckCode => $rows) {
+   
+           Log::info('Started Trip Time Route v2 on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+       
+           $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('TripClassificationv3', '=', 'Trip Start')->orderBy('DateUpdated')->orderBy('Time')->get();
+        
+           foreach ($trucks as  $truckrows => $trip) {
+               
+           $nextTrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id )->where('TripClassificationv3','=', 'Trip End')->first(); 
+       
+           if($nextTrip != null){
+   
+           //loading times on trip start
+           $interval =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$trip->id, $nextTrip->id])
+           ->sum('PositiveEventDuration');
+
+             $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $nextTrip->id)->update([
+   
+               'TripRoutev2' => $trip->GFupdated1. ' to ' . $nextTrip->GFupdated1,
+               'TripTimev2' => $interval
+    
+            ]); 
+   
+            }
+   
+           }
+   
+           Log::info('Finished Trip Time Route V2on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+   
+          } 
+   
+          dd('done');
+   
+        
+   }
+   
+
+   public function TripClassificationV4()
+    {
+           
+           ini_set('max_execution_time', 360000000000); // 3600 seconds = 60 minutes
+           set_time_limit(360000000000);
+   
+           $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
+      
+           foreach ($truckData as $truckCode => $rows) {
+   
+           Log::info('Started Trip Class v4 on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+       
+           $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('TripClassificationv3', '=', 'Trip End')->orderBy('DateUpdated')->orderBy('Time')->get();
+        
+           foreach ($trucks as  $truckrows => $trip) {
+               
+           $nextTrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id )->where('TripClassificationv3','=', 'Trip Start')->first(); 
+       
+           if($nextTrip != null){
+   
+            dd($trip,$nextTrip);
+           $interval =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$trip->id, $nextTrip->id])
+           ->sum('PositiveEventDuration');
+
+             $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $nextTrip->id)->update([
+   
+               'TripRoutev2' => $trip->GFupdated1. ' to ' . $nextTrip->GFupdated1,
+               'TripTimev2' => $interval
+    
+            ]); 
+   
+            }
+   
+           }
+   
+           Log::info('Finished Trip Class V4 on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+   
+          } 
+   
+          dd('done');
+   
+        
+   }
+
+
 }
+
