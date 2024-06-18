@@ -79,15 +79,26 @@ Route::get('/TimeSpentPercentage', [BaselineController::class, 'TimeSpentPercent
 Route::get('/FbCartrack', [BaselineController::class, 'FbCartrack'])->name('FbCartrack');
 Route::get('/FbCartrackDistanceLink', [BaselineController::class, 'FbCartrackDistanceLink'])->name('FbCartrackDistanceLink');
 Route::get('/FleetboardTripDataDistance', [BaselineController::class, 'FleetboardTripDataDistance'])->name('FleetboardTripDataDistance');
+Route::get('/Dailyfuel', [BaselineController::class, 'Dailyfuel'])->name('Dailyfuel');
 
 Route::get('/TripTimeTruck', [BaselineController::class, 'TripTimeTruck'])->name('TripTimeTruck');
 
 Route::get('/TripClassificationV3', [BaselineController::class, 'TripClassificationV3'])->name('TripClassificationV3');
 Route::get('/TripClassificationV3Updated', [BaselineController::class, 'TripClassificationV3Updated'])->name('TripClassificationV3Updated');
-Route::get('/TripClassificationV4', [BaselineController::class, 'TripClassificationV4'])->name('TripClassificationV4');
+Route::get('/BaselineV2', [BaselineController::class, 'BaselineV2'])->name('BaselineV2');
+Route::get('/TripClassificationV7', [BaselineController::class, 'TripClassificationV7'])->name('TripClassificationV7');
+Route::get('/TripClassificationV7loading', [BaselineController::class, 'TripClassificationV7loading'])->name('TripClassificationV7loading');
 Route::get('/TripTimeRoutev2', [BaselineController::class, 'TripTimeRoutev2'])->name('TripTimeRoutev2');
 
+Route::get('/Stops', [BaselineController::class, 'Stops'])->name('Stops');
+Route::get('/Deadruns', [BaselineController::class, 'Deadruns'])->name('Deadruns');
+Route::get('/TripTimeRoutev2Deadruns', [BaselineController::class, 'TripTimeRoutev2Deadruns'])->name('TripTimeRoutev2Deadruns');
+Route::get('/TripID', [BaselineController::class, 'TripID'])->name('TripID');
 
+Route::get('/TripSummary', [BaselineController::class, 'TripSummary'])->name('TripSummary');
+Route::get('/TripDetail', [BaselineController::class, 'TripDetail'])->name('TripDetail');
+Route::get('/lineClassification', [BaselineController::class, 'lineClassification'])->name('lineClassification');
+Route::get('/lineclassificationV2', [BaselineController::class, 'lineclassificationV2'])->name('lineclassificationV2');
 
 
 
