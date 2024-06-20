@@ -74,7 +74,8 @@ Route::get('/fleetboardfuel', [BaselineController::class, 'fleetboardfuel'])->na
 
 Route::get('/TotalDistanceFuel', [BaselineController::class, 'TotalDistanceFuel'])->name('TotalDistanceFuel');
 Route::get('/RouteClassification', [BaselineController::class, 'RouteClassification'])->name('RouteClassification');
-Route::get('/TimeSpentPercentage', [BaselineController::class, 'TimeSpentPercentage'])->name('TimeSpentPercentage');
+Route::get('/TimeSpentPercentageDeadruns', [BaselineController::class, 'TimeSpentPercentageDeadruns'])->name('TimeSpentPercentageDeadruns');
+Route::get('/TimeSpentPercentageOffloading', [BaselineController::class, 'TimeSpentPercentageOffloading'])->name('TimeSpentPercentageOffloading');
 
 Route::get('/FbCartrack', [BaselineController::class, 'FbCartrack'])->name('FbCartrack');
 Route::get('/FbCartrackDistanceLink', [BaselineController::class, 'FbCartrackDistanceLink'])->name('FbCartrackDistanceLink');
