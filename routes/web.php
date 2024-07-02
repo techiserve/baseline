@@ -53,7 +53,7 @@ Route::get('/CumulativeTime', [BaselineController::class, 'CumulativeTime'])->na
 Route::get('/truckLogic', [BaselineController::class, 'truckLogic'])->name('truckLogic');
 Route::get('/newBase', [BaselineController::class, 'newBase'])->name('newBase');
 Route::get('/runBaseline', [BaselineController::class, 'RunBaseline'])->name('RunBaseline');
-Route::get('/updateLong', [BaselineController::class, 'updateLong'])->name('updateLong');
+//Route::get('/updateLong', [BaselineController::class, 'updateLong'])->name('updateLong');
 Route::get('/BiTripEnd', [BaselineController::class, 'BiTripEnd'])->name('BiTripEnd');
 Route::get('/BiTripStart', [BaselineController::class, 'BiTripStart'])->name('BiTripStart');
 Route::get('/BiTimeCalculation', [BaselineController::class, 'BiTimeCalculation'])->name('BiTimeCalculation');
@@ -81,6 +81,8 @@ Route::get('/FbCartrack', [BaselineController::class, 'FbCartrack'])->name('FbCa
 Route::get('/FbCartrackDistanceLink', [BaselineController::class, 'FbCartrackDistanceLink'])->name('FbCartrackDistanceLink');
 Route::get('/FleetboardTripDataDistance', [BaselineController::class, 'FleetboardTripDataDistance'])->name('FleetboardTripDataDistance');
 Route::get('/Dailyfuel', [BaselineController::class, 'Dailyfuel'])->name('Dailyfuel');
+Route::get('/FleetPerfomance', [BaselineController::class, 'FleetPerfomance'])->name('FleetPerfomance');
+Route::get('/FuelClassification', [BaselineController::class, 'FuelClassification'])->name('FuelClassification');
 
 Route::get('/TripTimeTruck', [BaselineController::class, 'TripTimeTruck'])->name('TripTimeTruck');
 
@@ -100,6 +102,7 @@ Route::get('/TripSummary', [BaselineController::class, 'TripSummary'])->name('Tr
 Route::get('/TripDetail', [BaselineController::class, 'TripDetail'])->name('TripDetail');
 Route::get('/lineClassification', [BaselineController::class, 'lineClassification'])->name('lineClassification');
 Route::get('/lineclassificationV2', [BaselineController::class, 'lineclassificationV2'])->name('lineclassificationV2');
-
+Route::get('/TripSoapFleetboard', [BaselineController::class, 'TripSoapFleetboard'])->name('TripSoapFleetboard');
+Route::get('/FleetRefactor', [BaselineController::class, 'FleetRefactor'])->name('FleetRefactor');
 
 
