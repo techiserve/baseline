@@ -24,8 +24,6 @@ class BaselineController extends Controller
   public function RunBaseline()
   {
 
-     // first phase baseline
-
       $this->timeDifference();
       $this->LongDifference();
       $this->LatDifference();
