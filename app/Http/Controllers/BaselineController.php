@@ -1048,12 +1048,12 @@ class BaselineController extends Controller
     public function timeDifference()
     {
         
-      dd('doneee again..');
+    //  dd('doneee again..');
         ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
         set_time_limit(360000000000);
 
            $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-05-01' , '2024-05-31'])->groupBy('Truck')->orderBy('id')->get();
-        //  dd($truckData); 
+          dd($truckData); 
 
          foreach ($truckData as $truckCode => $rows) {
 
@@ -1065,7 +1065,7 @@ class BaselineController extends Controller
           $startDateTime = new DateTime($startDate);
           $endDateTime = new DateTime($endDate);
      
-         $trucks =  DB::connection('mysql')->table('baselinev2')->where('Truck', '=', $rows->Truck)->orderBy('Date')->orderBy('Time')->get();
+         $trucks =  DB::connection('mysql')->table('baselinev2')->where('Truck', '=', $rows->Truck)->whereBetween('Date', [$startDateTime, $endDateTime])->orderBy('Date')->orderBy('Time')->get();
          //dd($trucks);
           foreach ($trucks as  $truckrows => $trip) {
 
