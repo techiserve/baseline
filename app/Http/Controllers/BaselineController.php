@@ -1055,14 +1055,14 @@ class BaselineController extends Controller
            $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-05-01' , '2024-05-31'])->groupBy('Truck')->orderBy('id')->get();
           
            //$truckData = DB::connection('mysql')->table('geofence')->get();
-          dd($truckData); 
+      // dd($truckData); 
 
          foreach ($truckData as $truckCode => $rows) {
 
           Log::info('Started Time Difference on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
           $startDate = '2024-05-01'; // Replace with your start date
         $endDate = '2024-05-31';  // Replace with your end date
-
+dd('doneee');
           // Convert to DateTime objects
           $startDateTime = new DateTime($startDate);
           $endDateTime = new DateTime($endDate);
