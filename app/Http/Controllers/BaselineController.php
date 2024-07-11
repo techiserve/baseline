@@ -1062,7 +1062,7 @@ class BaselineController extends Controller
           Log::info('Started Time Difference on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
           $startDate = '2024-05-01'; // Replace with your start date
         $endDate = '2024-05-31';  // Replace with your end date
-dd('doneee');
+
           // Convert to DateTime objects
           $startDateTime = new DateTime($startDate);
           $endDateTime = new DateTime($endDate);
