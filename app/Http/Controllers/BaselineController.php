@@ -23,7 +23,7 @@ class BaselineController extends Controller
  //run complete baseline
   public function RunBaseline()
   {
-    dd('run baseline');
+   // dd('run baseline');
 
       $this->timeDifference();
       $this->LongDifference();
