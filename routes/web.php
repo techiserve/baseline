@@ -83,6 +83,9 @@ Route::get('/FleetboardTripDataDistance', [BaselineController::class, 'Fleetboar
 Route::get('/Dailyfuel', [BaselineController::class, 'Dailyfuel'])->name('Dailyfuel');
 Route::get('/FleetPerfomance', [BaselineController::class, 'FleetPerfomance'])->name('FleetPerfomance');
 Route::get('/FuelClassification', [BaselineController::class, 'FuelClassification'])->name('FuelClassification');
+Route::get('/CarTrackIdlingFuelOffloading', [BaselineController::class, 'CarTrackIdlingFuelOffloading'])->name('CarTrackIdlingFuelOffloading');
+Route::get('/CarTrackIdlingFuelDeadruns', [BaselineController::class, 'CarTrackIdlingFuelDeadruns'])->name('CarTrackIdlingFuelDeadruns');
+Route::get('/CarTrackIdlingFuelDaily', [BaselineController::class, 'CarTrackIdlingFuelDaily'])->name('CarTrackIdlingFuelDaily');
 
 Route::get('/TripTimeTruck', [BaselineController::class, 'TripTimeTruck'])->name('TripTimeTruck');
 
@@ -99,10 +102,11 @@ Route::get('/TripTimeRoutev2Deadruns', [BaselineController::class, 'TripTimeRout
 Route::get('/TripID', [BaselineController::class, 'TripID'])->name('TripID');
 
 Route::get('/TripSummary', [BaselineController::class, 'TripSummary'])->name('TripSummary');
-Route::get('/TripDetail', [BaselineController::class, 'TripDetail'])->name('TripDetail');
+Route::get('/TripDetail', [BaselineController::class, 'TripDetail'])->name('TripDetail'); 
 Route::get('/lineClassification', [BaselineController::class, 'lineClassification'])->name('lineClassification');
 Route::get('/lineclassificationV2', [BaselineController::class, 'lineclassificationV2'])->name('lineclassificationV2');
 Route::get('/TripSoapFleetboard', [BaselineController::class, 'TripSoapFleetboard'])->name('TripSoapFleetboard');
+Route::get('/DailySoapFleetboard', [BaselineController::class, 'DailySoapFleetboard'])->name('DailySoapFleetboard');
 Route::get('/FleetRefactor', [BaselineController::class, 'FleetRefactor'])->name('FleetRefactor');
 
 
