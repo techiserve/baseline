@@ -23,7 +23,6 @@ class BaselineController extends Controller
  //run complete baseline
   public function RunBaseline()
   {
-    dd('done..');
 
       $this->timeDifference();
       $this->LongDifference();
@@ -1047,12 +1046,13 @@ class BaselineController extends Controller
      //calculates difference between consecutive time stamps
     public function timeDifference()
     {
-
+        
+      dd('doneee');
         ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
         set_time_limit(360000000000);
 
            $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-05-01' , '2024-05-31'])->groupBy('Truck')->orderBy('id')->get();
-          dd($truckData); 
+        //  dd($truckData); 
 
          foreach ($truckData as $truckCode => $rows) {
 
