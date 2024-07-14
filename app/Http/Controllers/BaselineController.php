@@ -25,7 +25,7 @@ class BaselineController extends Controller
   {
    // dd('run baseline');
 
-       $this->timeDifference();
+      // $this->timeDifference();
     //   $this->LongDifference();
     //   $this->LatDifference();
     //  $this->CoordinateTest();
@@ -1055,8 +1055,8 @@ class BaselineController extends Controller
 
           // $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-05-01' , '2024-05-31'])->groupBy('Truck')->orderBy('id')->get();
           
-           $truckData = DB::connection('mysql')->table('geofence')->get();
-      // dd($truckData); 
+          // $truckData = DB::connection('mysql')->table('geofence')->get();
+    //   dd($truckData); 
 
          foreach ($truckData as $truckCode => $rows) {
 
