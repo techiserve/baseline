@@ -81,21 +81,23 @@ class BaselineController extends Controller
   public function BaselineV2()
   {
       
-   $this->geofence();
-   $this->Route();
-   $this->GeofenceWithRBayClass();
-   $this->GFupdated11();
-    $this->Stops();
-   $this->TripClassificationV3();
-   $this->TripClassificationV3Updated();
-    $this->Deadruns();
-    $this->TripClassificationV7();
-    $this->TripClassificationV7loading();
-    $this->TripTimeRoutev2();
-    $this->TripTimeRoutev2Deadruns();
-  //  $this->TripID();
-    $this->loadCapacity();
+  //  $this->geofence();
+  //  $this->Route();
+  //  $this->GeofenceWithRBayClass();
+  //  $this->GFupdated11();
+  //   $this->Stops();
+  //  $this->TripClassificationV3();
+  //  $this->TripClassificationV3Updated();
+  //   $this->Deadruns();
+  //   $this->TripClassificationV7();
+  //   $this->TripClassificationV7loading();
+  //   $this->TripTimeRoutev2();
+  //   $this->TripTimeRoutev2Deadruns();
+    $this->TripID();
+    $this->lineClassification();
+    $this->lineclassificationV2();
     $this->TripSummary();
+    $this->TripDetail();
   
   }
 
@@ -684,9 +686,9 @@ class BaselineController extends Controller
         set_time_limit(36000000000);
        // dd('testing');
        
-         $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-05-01' , '2024-05-31'])->groupBy('Truck')->orderBy('id')->count();  
-         // $truckData = DB::connection('mysql')->table('geofence')->get();  // $truckData = $truckData->take(2);
-          dd($truckData);
+       //  $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-05-01' , '2024-05-31'])->groupBy('Truck')->orderBy('id')->get();  
+          $truckData = DB::connection('mysql')->table('baselinetest')->get();  // $truckData = $truckData->take(2);
+        dd($truckData);
 
         foreach ($truckData as $truckCode => $rows) {
 
@@ -704,8 +706,6 @@ class BaselineController extends Controller
        // $prevTruck =  DB::connection('mysql')->table('baseline')->where('Truck', '=', $rows->Truck)->whereBetween('Date', [$startDateTime, $endDateTime])->orderBy('Date')->orderBy('Time')->first();
            //dd($trucks);
         foreach ($trucks as $truckrows => $trip) {
-
-         // dd($count,$trucks);
 
           if($truckrows != ($count - 2)){       
         
@@ -737,6 +737,7 @@ class BaselineController extends Controller
        }
 
       }
+
       Log::info('Finished trip end  on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
 
       }
@@ -1893,37 +1894,32 @@ class BaselineController extends Controller
 
     public function FleetPerfomance()
     { 
-      
-      // $dates = $this->Dates();
-      // dd($dates);
 
       $cacheKey = 'example_cache_key';
 
-      // Forget the cached item
      Cache::forget($cacheKey);
    
         ini_set('max_execution_time', 360000000000); // 3600 seconds = 60 minutes
         set_time_limit(360000000000);
 
-        $truckData = DB::connection('mysql')->table('tripsummary')->groupBy('Truck')->orderBy('id')->get();
+        $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
        // dd($truckData);
         foreach ($truckData as $truckCode => $rows) {
           $cacheKeys = 'example_cache_key';
          Cache::forget($cacheKeys);
         Log::info('Started fleet perfomance on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
 
-       $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->groupBy('DateUpdated')->get();
+        $trucks = $this->Dates();
 
-      //  dd($trucks);
         foreach ($trucks as $truckrows => $trip) {
 
-          Log::info('Started fleet perfomance on date ', ['Truck' => $rows->Truck,  '#' => $trip->DateUpdated]);
+         Log::info('Started fleet perfomance on date ', ['Truck' => $rows->Truck,  '#' => $trip]);
 
-         $daytripscount = DB::connection('mysql')->table('tripsummary')->where('Truck', '=', $trip->Truck)->where('DateUpdated', '=', $trip->DateUpdated)->where('LoadingTripClassificationv2', '=', 'Offloading Trip')->orderBy('Time')->count();    
-         $daytrips = DB::connection('mysql')->table('tripsummary')->where('Truck', '=', $trip->Truck)->where('DateUpdated', '=', $trip->DateUpdated)->where('LoadingTripClassificationv2', '=', 'Offloading Trip')->orderBy('Time')->get();
-         $onetrip = DB::connection('mysql')->table('tripsummary')->where('Truck', '=', $trip->Truck)->where('TruckType', '!=', null)->first();
-         $fuel = DB::connection('mysql')->table('dailyfuel')->where('Truck', '=', $trip->Truck)->where('Day', '=', $trip->DateUpdated)->first();
-       
+         $daytripscount = DB::connection('mysql')->table('tripsummary')->where('Truck', '=', $rows->Truck)->where('DateUpdated', '=', $trip)->where('LoadingTripClassificationv2', '=', 'Offloading Trip')->orderBy('Time')->count();    
+         $daytrips = DB::connection('mysql')->table('tripsummary')->where('Truck', '=', $rows->Truck)->where('DateUpdated', '=', $trip)->where('LoadingTripClassificationv2', '=', 'Offloading Trip')->orderBy('Time')->get();
+         $onetrip = DB::connection('mysql')->table('tripsummary')->where('Truck', '=', $rows->Truck)->where('TruckType', '!=', null)->first();
+         $fuel = DB::connection('mysql')->table('dailyfuel')->where('Truck', '=', $rows->Truck)->where('Day', '=', $trip)->first();
+      // dd($fuel);
           if($fuel == null){
             $fuelused = 0;
             $dailydistance = 0;
@@ -1957,18 +1953,16 @@ class BaselineController extends Controller
 
          }
 
-        // dd($dailydistance);
-
 
          if($daytripscount ==  0){ 
 
-         // $tripstartcount = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $trip->Truck)->where('DateUpdated', '=', $trip->DateUpdated)->where('TripClassificationv3', '=', 'Trip Start')->count();  
+         // $tripstartcount = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('DateUpdated', '=', $trip)->where('TripClassificationv3', '=', 'Trip Start')->count();  
     
-         $vehicle = $trip->Truck;
+         $vehicle = $rows->Truck;
 
         
          $expirationTimeInSeconds = 3600; // 1 day
-           $vehicle = $trip->Truck;
+           $vehicle = $rows->Truck;
            $cacheKeya = 'cached_data_for_' . $vehicle;
          //  dd($vehicle);
          $cachedData = Cache::remember($cacheKeya, $expirationTimeInSeconds, function ()use ($vehicle) {
@@ -1978,25 +1972,25 @@ class BaselineController extends Controller
                  ->get();
          });
 
-       //  dd($cachedData);
+    //     dd($cachedData);
 
             // Retrieve the cached table data
             $cachedData = Cache::get($cacheKeya);
            // dd($cachedData);
             // Example: Querying the cached data
             $filteredData = $cachedData->where('Truck', '=',$vehicle)
-                           ->where('DateUpdated', $trip->DateUpdated)
+                           ->where('DateUpdated', $trip)
                            ->where('TripClassificationv3', 'Trip Start')
                            ->count();
 
                            $filteredData1 = $cachedData->where('Truck', '=',$vehicle)
-                           ->where('DateUpdated', $trip->DateUpdated)
+                           ->where('DateUpdated', $trip)
                            ->where('LoadingTripClassification', 'Trip Start')
                            ->count();
 
                       
                            $filteredData2 = $cachedData->where('Truck', '=',$vehicle)
-                           ->where('DateUpdated', $trip->DateUpdated)
+                           ->where('DateUpdated', $trip)
                            ->where('LoadingTripClassification', 'Trip End, Trip Start')
                            ->count();
 
@@ -2019,28 +2013,35 @@ class BaselineController extends Controller
 
 
          if($tripstart == 'No'){
-      //  dd($trip->Truck,$trip->DateUpdated);
-          $singledata = $cachedData->where('Truck', '=', $trip->Truck)->where('DateUpdated', $trip->DateUpdated)->last()->id;
+
+          $singledatacount = $cachedData->where('Truck', '=', $rows->Truck)->where('DateUpdated', $trip)->count();
+
+          if($singledatacount > 0){
+      //  dd($rows->Truck,$trip);
+          $singledata = $cachedData->where('Truck', '=', $rows->Truck)->where('DateUpdated', $trip)->last()->id;
          // dd($singledata);
-          $finalcheck = $cachedData->where('Truck', $trip->Truck)->where('id', '<',$singledata)->where('LoadingTripClassification','!=', null)->last();
-          $finalcheck2 = $cachedData->where('Truck', $trip->Truck)->where('id', '<',$singledata)->where('TripClassificationv3','!=', null)->last();
+          $finalcheck = $cachedData->where('Truck', $rows->Truck)->where('id', '<',$singledata)->where('LoadingTripClassification','!=', null)->last();
+          $finalcheck2 = $cachedData->where('Truck', $rows->Truck)->where('id', '<',$singledata)->where('TripClassificationv3','!=', null)->last();
 
          if($finalcheck == 'Trip Start' OR $finalcheck2 == 'Trip Start'){
                   
           $tripstart = 'Yes';
 
          };
+        }
 
          }
 
-         $check = DB::connection('mysql')->table('fleetperfomance')->where('Truck', $trip->Truck)->where('Date', $trip->DateUpdated)->count();
+         
+
+         $check = DB::connection('mysql')->table('fleetperfomance')->where('Truck', $rows->Truck)->where('Date', $trip)->count();
 
          if($check > 0){
 
-          $createTrip = DB::connection('mysql')->table('fleetperfomance')->where('Truck', $trip->Truck)->where('Date', $trip->DateUpdated)->update([
+          $createTrip = DB::connection('mysql')->table('fleetperfomance')->where('Truck', $rows->Truck)->where('Date', $trip)->update([
          
-            'Date' => $trip->DateUpdated,
-            'Truck' => $trip->Truck,
+            'Date' => $trip,
+            'Truck' => $rows->Truck,
             'TotalFuelUsed' => $fuelused,
             'Trips' => $daytripscount,
             'TruckType' => $trucktype,
@@ -2058,8 +2059,8 @@ class BaselineController extends Controller
 
          $createTrip = DB::connection('mysql')->table('fleetperfomance')->insert([
          
-          'Date' => $trip->DateUpdated,
-          'Truck' => $trip->Truck,
+          'Date' => $trip,
+          'Truck' => $rows->Truck,
           'TotalFuelUsed' => $fuelused,
           'Trips' => $daytripscount,
           'TruckType' => $trucktype,
@@ -2694,12 +2695,10 @@ class BaselineController extends Controller
         ini_set('max_execution_time', 360000000000); // 3600 seconds = 60 minutes
         set_time_limit(360000000000);
 
-        $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
+        $truckData = DB::connection('mysql')->table('baselinetest')->where('Truck','=','SL152 JST074MP')->groupBy('Truck')->orderBy('id')->get();
    
         foreach ($truckData as $truckCode => $rows) {
         
-          if($truckCode > 158){
-
         Log::info('Started total fleet board soap on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
  
        // $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->groupBy('DateUpdated')->get();
@@ -2901,7 +2900,6 @@ class BaselineController extends Controller
        //  dd('done..');
         Log::info('Finished total fleet board soap on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
 
-        }
      
        } 
 
