@@ -1055,8 +1055,8 @@ class BaselineController extends Controller
 
           // $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-05-01' , '2024-05-31'])->groupBy('Truck')->orderBy('id')->get();
           
-          // $truckData = DB::connection('mysql')->table('geofence')->get();
-    //   dd($truckData); 
+           $truckData = DB::connection('mysql')->table('geofence')->get();
+       dd($truckData); 
 
          foreach ($truckData as $truckCode => $rows) {
 
@@ -2698,7 +2698,7 @@ class BaselineController extends Controller
    
         foreach ($truckData as $truckCode => $rows) {
         
-          if($truckCode > 148){
+          if($truckCode > 158){
 
         Log::info('Started total fleet board soap on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
  
