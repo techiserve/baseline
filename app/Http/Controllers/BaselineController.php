@@ -507,6 +507,7 @@ class BaselineController extends Controller
 
    }
 
+   
      // combines trip end and trip start 
      public function TripTest(){
 
