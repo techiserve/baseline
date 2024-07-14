@@ -70,6 +70,7 @@ Route::get('/TripRoute', [BaselineController::class, 'TripRoute'])->name('TripRo
 Route::get('/loadCapacity', [BaselineController::class, 'loadCapacity'])->name('loadCapacity');
 Route::get('/truckmap', [BaselineController::class, 'truckmap'])->name('truckmap');
 Route::get('/fleetboardfuel', [BaselineController::class, 'fleetboardfuel'])->name('fleetboardfuel');
+Route::get('/Dates', [BaselineController::class, 'Dates'])->name('Dates');
 
 
 Route::get('/TotalDistanceFuel', [BaselineController::class, 'TotalDistanceFuel'])->name('TotalDistanceFuel');
