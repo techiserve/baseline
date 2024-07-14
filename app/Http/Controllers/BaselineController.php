@@ -32,7 +32,7 @@ class BaselineController extends Controller
     //  $this->movingStationary();
     //  $this->Count();
     //  $this->OnTheRoad();
-    //   $this->TripStart();
+       $this->TripStart();
      $this->tripEnd();
      $this->TripTest();
       $this->TripTestUpdated();
@@ -455,7 +455,7 @@ class BaselineController extends Controller
 
      
         $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-05-01' , '2024-05-31'])->groupBy('Truck')->orderBy('id')->get();   // $truckData = $truckData->take(2);
-      //   dd($truckData);
+         dd($truckData);
 
        foreach ($truckData as $truckCode => $rows) {
 
@@ -688,7 +688,7 @@ class BaselineController extends Controller
        
       $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-05-01' , '2024-05-31'])->groupBy('Truck')->orderBy('id')->get();         // $truckData = $truckData->take(2);
        //   $truckData = DB::connection('mysql')->table('baselinetest')->get();  // $truckData = $truckData->take(2);
-        dd($truckData);
+      //  dd($truckData);
 
         foreach ($truckData as $truckCode => $rows) {
 
