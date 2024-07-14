@@ -682,7 +682,7 @@ class BaselineController extends Controller
     {
         ini_set('max_execution_time', 36000000000); // 3600 seconds = 60 minutes
         set_time_limit(36000000000);
-        dd('testing');
+       // dd('testing');
        
          $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-05-01' , '2024-05-31'])->groupBy('Truck')->orderBy('id')->get();    // $truckData = $truckData->take(2);
           dd($truckData);
