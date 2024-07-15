@@ -2182,7 +2182,7 @@ class BaselineController extends Controller
       ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
       set_time_limit(360000000000);
      
-      $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-01-01' , '2024-04-30'])->groupBy('Truck')->orderBy('id')->get();
+      $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-05-01' , '2024-05-31'])->groupBy('Truck')->orderBy('id')->get();
       // $truckData = $truckData->take(2);
       //   dd($truckData);
 
@@ -2190,7 +2190,7 @@ class BaselineController extends Controller
 
         Log::info('Started truck logic on', ['Truck' => $rows->Truck, '#' => $truckCode]);
         $startDate = '2024-01-01'; // Replace with your start date
-        $endDate = '2024-04-30';   // Replace with your end date
+        $endDate = '2024-05-31';   // Replace with your end date
 
         // Convert to DateTime objects
         $startDateTime = new DateTime($startDate);
@@ -2202,7 +2202,7 @@ class BaselineController extends Controller
 
         $createTrip = DB::connection('mysql')->table('baselinetest')->insert([
          
-          'Date' => $trip->Date,
+          'DateUpdated' => $trip->Date,
           'BaseId' => $trip->id,
           'Truck' => $trip->Truck,
           'Time' => $trip->Time,
@@ -2359,27 +2359,28 @@ class BaselineController extends Controller
 
        $results = str_replace($substring, '', $string);
       //'The string contains the word "Workshop"'
-      } elseif(strpos($string, $substring1) !== false) {
+      }elseif(strpos($string, $substring1) !== false){
 
        $results = str_replace($substring1, '', $string);
 
       }else{
 
        $results = $rows->Truck;
+
       }
 
        $truckMap =  DB::connection('mysql')->table('truckmap')->where('Make' ,'=', 'MAN')->where('Truck','=', $results )->count();
        
       if($truckMap > 0){
 
-   //   $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck' ,'=', $rows->Truck )->where('TripID' ,'!=', null)->orderby('DateUpdated')->orderBy('Time')->get();
+      //   $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck' ,'=', $rows->Truck )->where('TripID' ,'!=', null)->orderby('DateUpdated')->orderBy('Time')->get();
       $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('TripClassificationv3', '=', 'Trip Start')->orderBy('DateUpdated')->orderBy('Time')->get();
      
       foreach ($trucks as $truckrows => $trip) {
 
 
       Log::info('started fuel-sub on', ['Truck' => $trip->Truck, 'row #' => $truckrows]);
-    //  $endtrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id)->where('Truck' ,'=', $rows->Truck)->first();
+       //  $endtrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id)->where('Truck' ,'=', $rows->Truck)->first();
       $endtrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id )->where('Truck', '=', $rows->Truck)->where('TripClassificationv3','=', 'Trip End')->first(); 
        
       $string2 = $trip->Truck;
@@ -2398,7 +2399,6 @@ class BaselineController extends Controller
 
        $result = $rows->Truck;
       }
-
 
         $time = substr($trip->Time, 0, 8);
         $start_timestamp = $trip->DateUpdated . ' ' .$time;
@@ -2466,9 +2466,7 @@ class BaselineController extends Controller
           ]);
         }
   
-       }
-
-      
+       }   
 
       }
 
@@ -2477,7 +2475,9 @@ class BaselineController extends Controller
       }
 
       Log::info('finished transfer on', ['Truck' => 'All']);
+
       }
+
       dd('done');
 
      }  
@@ -2513,15 +2513,15 @@ class BaselineController extends Controller
 
        $truckMap =  DB::connection('mysql')->table('truckmap')->where('Make' ,'=', 'MAN')->where('Truck','=', $results )->count();
        
-      if($truckMap > 0){
+       if($truckMap > 0){
 
-      $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck' ,'=', $rows->Truck )->where('TripClassificationv3' ,'=', 'Trip Start')->orderby('DateUpdated')->orderBy('Time')->get();
+       $trucks =  DB::connection('mysql')->table('baselinetest')->where('Truck' ,'=', $rows->Truck )->where('TripClassificationv3' ,'=', 'Trip Start')->orderby('DateUpdated')->orderBy('Time')->get();
      
-      foreach ($trucks as $truckrows => $trip) {
+       foreach ($trucks as $truckrows => $trip) {
 
-      Log::info('started fuel-sub on', ['Truck' => $trip->Truck, 'row #' => $truckrows]);
+       Log::info('started fuel-sub on', ['Truck' => $trip->Truck, 'row #' => $truckrows]);
 
-      $endtrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id)->where('Truck' ,'=', $rows->Truck)->where('TripClassificationv3' ,'=', 'Trip End')->first();
+       $endtrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id)->where('Truck' ,'=', $rows->Truck)->where('TripClassificationv3' ,'=', 'Trip End')->first();
  
        $interval =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$trip->id, $endtrip->id])
        ->where('Truck', '=', $rows->Truck)
@@ -2531,14 +2531,13 @@ class BaselineController extends Controller
 
        $updatefleet = DB::connection('mysql')->table('baselinetest')->where('id', '=', $endtrip->id )->update([
          
-        'idlingFuelUsed' => $interval
+       'idlingFuelUsed' => $interval
 
-      ]);
+       ]);
  
-      
-      }
+        }
 
-    }
+       }
 
   
       Log::info('finished cartrack idling fuel on', ['Truck' => 'All']);
@@ -2814,7 +2813,7 @@ class BaselineController extends Controller
 
       $fleettrips = $responseArray['soapenvBody']['p725getTripRecordResponse']['p725GetTripRecordResponse']['p725TripRecordReport'];
     
-    //  dd($responseArray,$resultsize,$fleettrips);
+      //  dd($responseArray,$resultsize,$fleettrips);
       foreach($fleettrips as $fleettrip){
 
         $timestamp =  $fleettrip['p725Start']['p725VehicleTimestamp'];
@@ -3013,9 +3012,9 @@ class BaselineController extends Controller
           set_time_limit(360000000000);
 
           $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
-    
+           
           foreach ($truckData as $truckCode => $rows) {
-      
+
           Log::info('Started dead trip fleet board soap on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
           
             $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('LoadingTripClassification', '=', 'Trip Start')->orwhere('Truck', '=', $rows->Truck)->where('LoadingTripClassification', '=', 'Trip End, Trip Start')->orderBy('DateUpdated')->orderBy('Time')->get();
@@ -3023,6 +3022,32 @@ class BaselineController extends Controller
            // $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('TripID', '!=', null)->orderBy('DateUpdated')->orderBy('Time')->get();
 
           foreach ($trucks as  $truckrows => $trip) {
+
+        $string = $rows->Truck;
+        $substring = 'Workshop';
+        $substring1 = 'Parked';
+
+      if (strpos($string, $substring) !== false) {
+
+       $results = str_replace($substring, '', $string);
+     //'The string contains the word "Workshop"'
+      } elseif(strpos($string, $substring1) !== false) {
+
+       $results = str_replace($substring1, '', $string);
+
+      }else{
+
+       $results = $rows->Truck;
+      }
+
+      $string = $results;
+      $parts = explode(" ", $string);
+      $result = $parts[0];
+    //  dd($result);
+
+      $count = DB::connection('mysql')->table('decconsumption')->where('Fleet', '=',  $result)->count();
+      //  dd($count,$result,$trip);
+      if($count > 0){
 
           Log::info('Started sub dead trip fleet board soap on', ['Truck' => $rows->Truck,  '#' => $trip->id]);
           $nextTrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id )->where('Truck', '=', $rows->Truck)->where('LoadingTripClassification', '=', 'Trip End')->orwhere('Truck', '=', $rows->Truck)->where('id', '>', $trip->id )->where('LoadingTripClassification', '=', 'Trip End, Trip Start')->first();
@@ -3156,6 +3181,8 @@ class BaselineController extends Controller
          }
 
         }
+        }
+   
 
    
         Log::info('Finished dead trip fleet board soap on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
@@ -5055,7 +5082,7 @@ class BaselineController extends Controller
      
     }
 
-  //  dd('nothing...'); 
+     //  dd('nothing...'); 
  
     }
 
