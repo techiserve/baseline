@@ -2347,7 +2347,7 @@ class BaselineController extends Controller
        
        foreach ($truckData as $truckCode => $rows) {
 
-        if($truckCode > -1){
+        if($truckCode > 114){
 
         Log::info('started fuel on', ['Truck' => $rows->Truck, 'row #' => $truckCode]);
 
@@ -2377,7 +2377,6 @@ class BaselineController extends Controller
      
       foreach ($trucks as $truckrows => $trip) {
 
-      if($truckrows < 1147){
 
       Log::info('started fuel-sub on', ['Truck' => $trip->Truck, 'row #' => $truckrows]);
     //  $endtrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id)->where('Truck' ,'=', $rows->Truck)->first();
@@ -2469,7 +2468,7 @@ class BaselineController extends Controller
   
        }
 
-      }
+      
 
       }
 
