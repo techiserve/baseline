@@ -25,10 +25,10 @@ class BaselineController extends Controller
   {
    // dd('run baseline');
 
-      $this->timeDifference();
-      $this->LongDifference();
-      $this->LatDifference();
-      $this->CoordinateTest();
+      // $this->timeDifference();
+      // $this->LongDifference();
+      // $this->LatDifference();
+      // $this->CoordinateTest();
      $this->movingStationary();
      $this->Count();
       $this->OnTheRoad();
@@ -1191,13 +1191,14 @@ class BaselineController extends Controller
         ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
         set_time_limit(360000000000);
        
-             $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-06-01' , '2024-06-30'])->groupBy('Truck')->orderBy('id')->get();    // $truckData = $truckData->take(2);
-        //   dd($truckData);
+         $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-06-01' , '2024-06-30'])->groupBy('Truck')->orderBy('id')->get();    // $truckData = $truckData->take(2);
 
          foreach ($truckData as $truckCode => $rows) {
 
+          if($truckCode > 112){
+     
           Log::info('Started movingstationary on', ['Truck' => $rows->Truck, '#' => $truckCode]);
-    $startDate = '2024-06-01'; // Replace with your start date
+          $startDate = '2024-06-01'; // Replace with your start date
           $endDate = '2024-06-30';   // Replace with your end date
 
           // Convert to DateTime objects
@@ -1235,6 +1236,8 @@ class BaselineController extends Controller
     
 
         Log::info('Finished movingStationary on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+
+      }
 
       }
 
@@ -2183,8 +2186,6 @@ class BaselineController extends Controller
       set_time_limit(360000000000);
      
       $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-05-01' , '2024-05-31'])->groupBy('Truck')->orderBy('id')->get();
-      // $truckData = $truckData->take(2);
-      //   dd($truckData);
 
        foreach ($truckData as $truckCode => $rows) {
 
