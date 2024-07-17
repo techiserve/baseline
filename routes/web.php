@@ -101,6 +101,7 @@ Route::get('/Stops', [BaselineController::class, 'Stops'])->name('Stops');
 Route::get('/Deadruns', [BaselineController::class, 'Deadruns'])->name('Deadruns');
 Route::get('/TripTimeRoutev2Deadruns', [BaselineController::class, 'TripTimeRoutev2Deadruns'])->name('TripTimeRoutev2Deadruns');
 Route::get('/TripID', [BaselineController::class, 'TripID'])->name('TripID');
+Route::get('/StartTime', [BaselineController::class, 'StartTime'])->name('StartTime');
 
 Route::get('/TripSummary', [BaselineController::class, 'TripSummary'])->name('TripSummary');
 Route::get('/TripDetail', [BaselineController::class, 'TripDetail'])->name('TripDetail'); 
