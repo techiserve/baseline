@@ -29,8 +29,8 @@ class BaselineController extends Controller
       // $this->LongDifference();
       // $this->LatDifference();
       // $this->CoordinateTest();
-     $this->movingStationary();
-     $this->Count();
+    // $this->movingStationary();
+   //  $this->Count();
       $this->OnTheRoad();
        $this->TripStart();
      $this->tripEnd();
@@ -415,8 +415,8 @@ class BaselineController extends Controller
              foreach ($truckData as $truckCode => $rows) {
     
               Log::info('Started on the road on', ['Truck' => $rows->Truck, '#' => $truckCode]);
-              $startDate = '2024-05-01'; // Replace with your start date
-              $endDate = '2024-05-31'; // Replace with your end date
+              $startDate = '2024-06-01'; // Replace with your start date
+              $endDate = '2024-06-30'; // Replace with your end date
              
           // Convert to DateTime objects
           $startDateTime = new DateTime($startDate);
