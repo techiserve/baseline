@@ -521,7 +521,7 @@ class BaselineController extends Controller
 
          foreach ($truckData as $truckCode => $rows) {
  
-          if($truckCode > 177){
+          if($truckCode > 178){
           Log::info('Started trip test on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           $startDate = '2024-05-01'; // Replace with your start date
           $endDate = '2024-05-31';   // Replace with your end date
