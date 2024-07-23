@@ -28,10 +28,10 @@ class BaselineController extends Controller
       // $this->CoordinateTest();
     // $this->movingStationary();
    //  $this->Count();
-      $this->OnTheRoad();
-       $this->TripStart();
-     $this->tripEnd();
-     $this->TripTest();
+    //   $this->OnTheRoad();
+    //    $this->TripStart();
+    //  $this->tripEnd();
+    //  $this->TripTest();
       $this->TripTestUpdated();
     // $this->cycleTime();
     //  $this->geofence();
@@ -2398,14 +2398,18 @@ class BaselineController extends Controller
 
         Log::info('Started google maps API on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
 
+        if($truckCode > 44){
+
       $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
       // $trucks = DB::connection('mysql')->table('baselinetest')->where('id', '=', 413)->orderBy('DateUpdated')->orderBy('Time')->get();
 
       foreach ($trucks as $truckrows => $trip) {
 
+
       $endtrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id )->where('Truck', '=', $rows->Truck)->first(); 
        
       if($endtrip != null){
+       // if($truckrows > 137){
 
          Log::info('Started line google maps API on', ['Truck' => $rows->Truck,  '#' => $truckrows ,  'of' => $trucks->count() ]);
 
@@ -2419,7 +2423,7 @@ class BaselineController extends Controller
           curl_setopt_array($curl, [
               CURLOPT_URL => "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$originCoords&destinations=$destinationCoords&key=$apiKey&mode=driving",
               CURLOPT_RETURNTRANSFER => true,
-              CURLOPT_TIMEOUT => 30,
+              CURLOPT_TIMEOUT => 60,
               CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
               CURLOPT_CUSTOMREQUEST => "GET",
           ]);
@@ -2429,15 +2433,16 @@ class BaselineController extends Controller
   
           curl_close($curl);
 
-          //dd($response,$originCoords,$destinationCoords);
           $data = json_decode($response, true);
-
+       
+          //dd($data,$originCoords,$destinationCoords);
+          if($data != null){
           if ($data['status'] == 'OK' && $data['rows'][0]['elements'][0]['status'] == 'OK') {
 
           $distance = $data['rows'][0]['elements'][0]['distance']['value'];
           $duration = $data['rows'][0]['elements'][0]['duration']['value'];
           $location =  $data['destination_addresses'][0];
-          //dd($distance,$duration,$location);
+         // dd($distance,$duration,$location);
  
           $updatefleet = DB::connection('mysql')->table('baselinetest')->where('id', '=', $endtrip->id )->update([
             
@@ -2448,11 +2453,18 @@ class BaselineController extends Controller
           ]);
     
         }
+        
+      }else{
+
+          Log::info('Started error google maps on', ['Truck' => $rows->Truck,  '#' => $truckrows ,  'of' => $trucks->count(), 'id' => $trip->id ]);
+
+        }
     
        // dd('done');
-        }
-
+       // }
+      }
        }
+      }
 
       Log::info('Finished google maps APIon', ['Truck' => $rows->Truck,  '#' => $truckCode]);
 
