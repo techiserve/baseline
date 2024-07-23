@@ -2234,13 +2234,13 @@ class BaselineController extends Controller
       ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
       set_time_limit(360000000000);
      
-      $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-06-01' , '2024-06-30'])->groupBy('Truck')->orderBy('id')->get();
+      $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-05-01' , '2024-05-31'])->groupBy('Truck')->orderBy('id')->get();
 
        foreach ($truckData as $truckCode => $rows) {
 
         Log::info('Started truck logic on', ['Truck' => $rows->Truck, '#' => $truckCode]);
-        $startDate = '2024-06-01'; // Replace with your start date
-        $endDate = '2024-06-30';   // Replace with your end date
+        $startDate = '2024-05-01'; // Replace with your start date
+        $endDate = '2024-05-31';   // Replace with your end date
 
         // Convert to DateTime objects
         $startDateTime = new DateTime($startDate);
@@ -2399,7 +2399,7 @@ class BaselineController extends Controller
 
         Log::info('Started google maps API on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
 
-        if($truckCode > 44){
+        if($truckCode > 60){
 
       $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
       // $trucks = DB::connection('mysql')->table('baselinetest')->where('id', '=', 413)->orderBy('DateUpdated')->orderBy('Time')->get();
