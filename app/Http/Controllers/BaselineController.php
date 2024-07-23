@@ -31,7 +31,7 @@ class BaselineController extends Controller
     //   $this->OnTheRoad();
     //    $this->TripStart();
     //  $this->tripEnd();
-    //  $this->TripTest();
+      $this->TripTest();
       $this->TripTestUpdated();
     // $this->cycleTime();
     //  $this->geofence();
@@ -520,7 +520,8 @@ class BaselineController extends Controller
          $truckData = DB::connection('mysql')->table('baselinev2')->whereBetween('Date', ['2024-05-01' , '2024-05-31'])->groupBy('Truck')->orderBy('id')->get();    
 
          foreach ($truckData as $truckCode => $rows) {
-
+ 
+          if($truckCode > 177){
           Log::info('Started trip test on', ['Truck' => $rows->Truck, '#' => $truckCode]);
           $startDate = '2024-05-01'; // Replace with your start date
           $endDate = '2024-05-31';   // Replace with your end date
@@ -563,7 +564,7 @@ class BaselineController extends Controller
 
         Log::info('Finished trip test on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
 
-       
+    }
 
       }
 
