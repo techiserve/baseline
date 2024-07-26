@@ -103,6 +103,7 @@ Route::get('/TripTimeRoutev2Deadruns', [BaselineController::class, 'TripTimeRout
 Route::get('/TripID', [BaselineController::class, 'TripID'])->name('TripID');
 Route::get('/StartTime', [BaselineController::class, 'StartTime'])->name('StartTime');
 Route::get('/GoogleApi', [BaselineController::class, 'GoogleApi'])->name('GoogleApi');
+Route::get('/GoogleTripTime', [BaselineController::class, 'GoogleTripTime'])->name('GoogleTripTime');
 
 Route::get('/TripSummary', [BaselineController::class, 'TripSummary'])->name('TripSummary');
 Route::get('/TripDetail', [BaselineController::class, 'TripDetail'])->name('TripDetail'); 
@@ -111,5 +112,5 @@ Route::get('/lineclassificationV2', [BaselineController::class, 'lineclassificat
 Route::get('/TripSoapFleetboard', [BaselineController::class, 'TripSoapFleetboard'])->name('TripSoapFleetboard');
 Route::get('/DailySoapFleetboard', [BaselineController::class, 'DailySoapFleetboard'])->name('DailySoapFleetboard');
 Route::get('/FleetRefactor', [BaselineController::class, 'FleetRefactor'])->name('FleetRefactor');
-
+Route::get('/Reorder', [BaselineController::class, 'Reorder'])->name('Reorder');
 

@@ -1,1 +1,39 @@
 ALTER USER 'root'@'localhost' IDENTIFIED BY 'Dmtjia@321';
+
+
+            if($trip->GFnew != null){
+
+              $parts = explode(' to ', $trip->GFnew);
+    
+              if (count($parts) == 2){
+    
+                $beforeTo = $parts[0];
+                $afterTo = $parts[1];
+    
+                if($beforeTo == $afterTo){
+    
+                  if($beforeTo == 'Richards Bay Route' OR $beforeTo == 'on Route (Komati Airport)'){
+    
+                    $status = 'Moving';
+    
+                  }else{
+    
+                    $status = 'Stationary';
+    
+                  }
+                  
+                }else{
+    
+                  $status = 'Moving';
+    
+                }
+    
+              }
+    
+              $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id)->update([
+
+                'FuelClassification' => $status
+          
+               ]);
+    
+            }

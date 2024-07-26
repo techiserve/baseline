@@ -85,22 +85,25 @@ class BaselineController extends Controller
   //  $this->Route();
   //  $this->GeofenceWithRBayClass();
   //  $this->GFupdated11();
-  //   $this->Stops();
-   $this->TripClassificationV3();
-   $this->TripClassificationV3Updated();
-    $this->Deadruns();
-    $this->TripClassificationV7();
-    $this->TripClassificationV7loading();
-    $this->TripTimeRoutev2();
+  //  $this->Stops();
+  // $this->TripClassificationV3();
+  // $this->TripClassificationV3Updated();
+   $this->Deadruns();
+   $this->TripClassificationV7();
+   $this->TripClassificationV7loading();
+   $this->TripTimeRoutev2();
     $this->TripTimeRoutev2Deadruns();
-  //  $this->TripID();
-   // $this->lineClassification();
-   // $this->lineclassificationV2();
-  //  $this->fuelclassification();
-    //  $this->TripID();
-    $this->loadCapacity();
-    $this->TripSummary();
-  //  $this->TripDetail();
+   $this->lineClassification();
+   $this->lineclassificationV2();
+   $this->fuelclassification();
+  // $this->TripID();
+ //  $this->loadCapacity();
+  // $this->StartTime();
+  // $this->TimeDifferenceMins();
+   $this->TimeSpentPercentageOffloading();
+   $this->TimeSpentPercentageDeadruns();
+    //$this->TripSummary();
+   // $this->TripDetail();
   
   }
 
@@ -260,6 +263,96 @@ class BaselineController extends Controller
 
        }
    
+    }
+
+    public function GoogleApi()
+    {    
+      
+      ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
+      set_time_limit(360000000000);
+
+      $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
+
+      foreach ($truckData as $truckCode => $rows) {
+
+        Log::info('Started google maps API on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+
+        if($truckCode > 60){
+
+      $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
+      // $trucks = DB::connection('mysql')->table('baselinetest')->where('id', '=', 413)->orderBy('DateUpdated')->orderBy('Time')->get();
+
+      foreach ($trucks as $truckrows => $trip) {
+
+
+      $endtrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id )->where('Truck', '=', $rows->Truck)->first(); 
+       
+      if($endtrip != null){
+       // if($truckrows > 137){
+
+         Log::info('Started line google maps API on', ['Truck' => $rows->Truck,  '#' => $truckrows ,  'of' => $trucks->count() ]);
+
+          $originCoords = "{$trip->Latitude},{$trip->Longitude}";
+          $destinationCoords = "{$endtrip->Latitude},{$endtrip->Longitude}";
+
+          //dd($originCoords,$destinationCoords);
+          $apiKey = 'AIzaSyAa156XEajfwFH52mX4_jRlz0Hhr9gHp34';
+          $curl = curl_init();
+
+          curl_setopt_array($curl, [
+              CURLOPT_URL => "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$originCoords&destinations=$destinationCoords&key=$apiKey&mode=driving",
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_TIMEOUT => 60,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => "GET",
+          ]);
+  
+          $response = curl_exec($curl);
+          $err = curl_error($curl);
+  
+          curl_close($curl);
+
+          $data = json_decode($response, true);
+       
+          //dd($data,$originCoords,$destinationCoords);
+          if($data != null){
+          if ($data['status'] == 'OK' && $data['rows'][0]['elements'][0]['status'] == 'OK') {
+
+          $distance = $data['rows'][0]['elements'][0]['distance']['value'];
+          $duration = $data['rows'][0]['elements'][0]['duration']['value'];
+          $location =  $data['destination_addresses'][0];
+         // dd($distance,$duration,$location);
+ 
+          $updatefleet = DB::connection('mysql')->table('baselinetest')->where('id', '=', $endtrip->id )->update([
+            
+            'GoogleDistance' => $distance/1000,
+            'GoogleDuration' => ($duration/60)/60,
+            'GoogleLocation' => $location
+
+          ]);
+    
+        }
+        
+      }else{
+
+          Log::info('Started error google maps on', ['Truck' => $rows->Truck,  '#' => $truckrows ,  'of' => $trucks->count(), 'id' => $trip->id ]);
+
+        }
+    
+       // dd('done');
+       // }
+      }
+       }
+      }
+
+      Log::info('Finished google maps APIon', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+
+       }
+     
+      Log::info('finished google maps API on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+
+      dd('done');
+          
     }
  
     //counts whenever there is a consecutive value of 1 in previous columnss
