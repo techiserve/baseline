@@ -2080,7 +2080,7 @@ class BaselineController extends Controller
 
         Log::info('Started google maps API on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
 
-        if($truckCode > 118){
+        if($truckCode > 120){
 
           $startDate = '2024-05-01'; // Replace with your start date
           $endDate = '2024-05-31'; // Replace with your end date
