@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BaselineController;
+use App\Http\Controllers\BaselineOneController;
+use App\Http\Controllers\WhitelabelbaselineController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -93,6 +95,7 @@ Route::get('/TripTimeTruck', [BaselineController::class, 'TripTimeTruck'])->name
 Route::get('/TripClassificationV3', [BaselineController::class, 'TripClassificationV3'])->name('TripClassificationV3');
 Route::get('/TripClassificationV3Updated', [BaselineController::class, 'TripClassificationV3Updated'])->name('TripClassificationV3Updated');
 Route::get('/BaselineV2', [BaselineController::class, 'BaselineV2'])->name('BaselineV2');
+Route::get('/BaselineV2One', [BaselineOneController::class, 'BaselineV2One'])->name('BaselineV2One');
 Route::get('/TripClassificationV7', [BaselineController::class, 'TripClassificationV7'])->name('TripClassificationV7');
 Route::get('/TripClassificationV7loading', [BaselineController::class, 'TripClassificationV7loading'])->name('TripClassificationV7loading');
 Route::get('/TripTimeRoutev2', [BaselineController::class, 'TripTimeRoutev2'])->name('TripTimeRoutev2');
@@ -113,4 +116,24 @@ Route::get('/TripSoapFleetboard', [BaselineController::class, 'TripSoapFleetboar
 Route::get('/DailySoapFleetboard', [BaselineController::class, 'DailySoapFleetboard'])->name('DailySoapFleetboard');
 Route::get('/FleetRefactor', [BaselineController::class, 'FleetRefactor'])->name('FleetRefactor');
 Route::get('/Reorder', [BaselineController::class, 'Reorder'])->name('Reorder');
+Route::get('/TruckStop', [BaselineController::class, 'TruckStop'])->name('TruckStop');
+Route::get('/TimeTable', [BaselineController::class, 'TimeTable'])->name('TimeTable');
+Route::get('/TruckTimetableMatch', [BaselineController::class, 'TruckTimetableMatch'])->name('TruckTimetableMatch');
+Route::get('/RmsApi', [BaselineController::class, 'RmsApi'])->name('RmsApi');
+Route::get('/RmsRawDataApi', [BaselineController::class, 'RmsRawDataApi'])->name('RmsRawDataApi');
+
+
+
+// Whitebaseline
+Route::get('/whitetruckLogic', [WhitelabelbaselineController::class, 'whitetruckLogic'])->name('whitetruckLogic');
+Route::get('/WGFupdated11', [WhitelabelbaselineController::class, 'WGFupdated11'])->name('WGFupdated11');
+Route::get('/WTripTimeRoutev2Deadruns', [WhitelabelbaselineController::class, 'WTripTimeRoutev2Deadruns'])->name('WTripTimeRoutev2Deadruns');
+Route::get('/WTripTimeRoutev2', [WhitelabelbaselineController::class, 'WTripTimeRoutev2'])->name('WTripTimeRoutev2');
+Route::get('/WTripDetail', [WhitelabelbaselineController::class, 'WTripDetail'])->name('WTripDetail');
+Route::get('/WTripSummary', [WhitelabelbaselineController::class, 'WTripSummary'])->name('WTripSummary');
+Route::get('/WBaselineV2', [WhitelabelbaselineController::class, 'WBaselineV2'])->name('WBaselineV2');
+Route::get('/WFleetPerfomanceTruckMap', [WhitelabelbaselineController::class, 'WFleetPerfomanceTruckMap'])->name('WFleetPerfomanceTruckMap');
+
+
+
 
