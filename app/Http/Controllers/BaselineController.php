@@ -239,7 +239,7 @@ public function RmsRawDataApi()
   Log::info('RMS API Response', ['response' => $response]);
   
   $data = json_decode($response, true);
-  //dd($data);
+  dd($data);
   
   
   foreach($data as $truck){
