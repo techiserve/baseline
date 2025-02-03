@@ -83,25 +83,27 @@ class BaselineController extends Controller
   //   $this->GFupdated11();
   //   $this->Stops();
   //   $this->GFNew11();
-  //  $this->StartTime();
-  //   $this->TimeDifferenceMins();
-  //  $this->TripClassificationV3();
-  //  $this->TripClassificationV3Updated();
-  //  $this->Deadruns();
-  //  $this->TripClassificationV7();
-  //  $this->TripClassificationV7loading();
-  //  $this->TripTimeRoutev2();
-  //   $this->TripTimeRoutev2Deadruns();
-  //  $this->lineClassification();
-  //  $this->lineclassificationV2();
-  //  $this->fuelclassification();
- // $this->TripID();
- // $this->loadCapacity();
- // $this->TimeSpentPercentageOffloading();
-//  $this->TimeSpentPercentageDeadruns();
-   $this->TripSummary();
-  // $this->FleetPerfomance();
-   $this->TripDetail();
+ //  $this->StartTime();
+ //   $this->TimeDifferenceMins();
+ //  $this->TripClassificationV3();
+  // $this->TripClassificationV3Updated();
+ // $this->Deadruns();
+ // $this->DeadrunsV2();
+ // $this->OutofService();
+  // $this->TripClassificationV7();
+ //  $this->TripClassificationV7loading();
+  //$this->TripTimeRoutev2();
+  //  $this->TripTimeRoutev2Deadruns();
+ //  $this->lineClassification();
+ //  $this->lineclassificationV2();
+ //  $this->fuelclassification();
+  // $this->TripID();
+//$this->loadCapacity();
+//$this->TimeSpentPercentageOffloading();
+ //$this->TimeSpentPercentageDeadruns();
+  $this->TripSummary();
+  //$this->FleetPerfomance();
+  $this->TripDetail();
   
   }
 
@@ -186,49 +188,64 @@ public function RmsRawDataApi()
   ini_set('max_execution_time', 3600000000000); // 3600 seconds = 60 minutes
   set_time_limit(360000000000);
 
-  $transporterGroupPk = 138;
-  $vehiclePk = 100574;
-  $fromDate = 1723710864000;     // Ensure these are the correct format and values
-  $toDate = 1724056437000;       // Ensure these are the correct format and values
-  $username = '73cH153rv3u53R';  // Replace with actual username
-  $password = 'ug6xUzwFPetWHq0'; // Replace with actual password
+  // $transporterGroupPk = 138;
+  // $vehiclePk = 100574;
+  // $fromDate = 1723710864000;     // Ensure these are the correct format and values
+  // $toDate = 1724056437000;       // Ensure these are the correct format and values
+  // $username = '73cH153rv3u53R';  // Replace with actual username
+  // $password = 'ug6xUzwFPetWHq0'; // Replace with actual password
   
    //dd($username);
   // Initialize cURL
+  $trucks = DB::connection('mysql')->table('rmstrucks')->get();
+ // dd($trucks);
+
+ // foreach($trucks as $truck){
+  $transporterGroupPk = 138;
+  $vehiclePk = 65104;
+  $fromDate = 1738396991000;
+  $toDate = 1738569791000;
+  $username = '73cH153rv3u53R';
+  $password = 'ug6xUzwFPetWHq0';
+  
+  Log::info('Started on RMS data', ['Truck' => 'all']);
+  
   $curl = curl_init();
   
-  // Set cURL options
-  curl_setopt_array($curl, array(
-    CURLOPT_URL => "https://cosmo.rmsui.co.za:8447/incident-ftp/v1/api/thirdPartyGroup/tracking?transporterGroupPk={$transporterGroupPk}&vehiclePk={$vehiclePk}&fromDate={$fromDate}&toDate={$toDate}",
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_ENCODING => '',
-    CURLOPT_MAXREDIRS => 10,
-    CURLOPT_TIMEOUT => 0,
-    CURLOPT_FOLLOWLOCATION => true,
-    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-    CURLOPT_CUSTOMREQUEST => 'GET',
-    CURLOPT_USERPWD => "{$username}:{$password}", // Set Basic Auth credentials
-  ));
+  curl_setopt_array($curl, [
+      CURLOPT_URL => "https://cosmo.rmsui.co.za:8447/incident-ftp/v1/api/thirdPartyGroup/tracking?transporterGroupPk={$transporterGroupPk}&vehiclePk={$vehiclePk}&fromDate={$fromDate}&toDate={$toDate}",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => '',
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 30, // Increase timeout
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => 'GET',
+      CURLOPT_USERPWD => "{$username}:{$password}",
+      CURLOPT_SSL_VERIFYPEER => false, // Disable SSL verification
+      CURLOPT_SSL_VERIFYHOST => false
+  ]);
   
-  // Execute the cURL request
   $response = curl_exec($curl);
   
-  // Check for cURL errors
   if (curl_errno($curl)) {
-      echo 'Error:' . curl_error($curl);
+      Log::error('cURL Error: ' . curl_error($curl));
+      dd('cURL Error: ' . curl_error($curl));
   }
   
-  // Close the cURL session
   curl_close($curl);
   
-  // Output the response
+  // Log response for debugging
+  Log::info('RMS API Response', ['response' => $response]);
+  
   $data = json_decode($response, true);
   //dd($data);
+  
   
   foreach($data as $truck){
 
     $dateTime = new DateTime($truck['gpsDate']);
-    $createTrip = DB::connection('mysql')->table('baselinev2')->insert([
+    $createTrip = DB::connection('mysql')->table('rmsapibaseline')->insert([
          
       'DateTime' => $truck['gpsDate'],
       'Truck' => $truck['registrationNr'],
@@ -245,6 +262,8 @@ public function RmsRawDataApi()
 
 
   Log::info('finished rms rwa data API on');
+
+//}
 
   dd('done');
       
@@ -2593,7 +2612,7 @@ public function RmsRawDataApi()
   
       }
 
-      dd('done');
+    //  dd('done');
              
     }
     /////////////////////////////////////////////////////////////////////////////
@@ -5386,7 +5405,7 @@ public function RmsRawDataApi()
      //  dd('done');
 
              
-    }
+   }
 
     public function FleetboardTripDataDistance()
     {
@@ -5458,7 +5477,7 @@ public function RmsRawDataApi()
 
        //  dd('done');
 
-      }
+    }
 
 
       public function TripTimeTruck()
@@ -5506,7 +5525,7 @@ public function RmsRawDataApi()
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
        // Updated Trip Data after showing Taps
       public function TripClassificationV3()
-      {
+    {
 
       ini_set('max_execution_time', 360000000000); // 3600 seconds = 60 minutes
       set_time_limit(360000000000);
@@ -5523,47 +5542,32 @@ public function RmsRawDataApi()
 
       ]);
 
-     $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('id' ,'>', 1)->orderBy('DateUpdated')->orderBy('Time')->get();
+     $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('id' ,'>', $rows->id)->orderBy('DateUpdated')->orderBy('Time')->get();
+   //  $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck','=','SL197 KCD480MP')->where('id' ,'>=', 337675 )->orderBy('DateUpdated')->orderBy('Time')->get();
 
+ //   dd($trucks);
       foreach ($trucks as  $truckrows => $trip) {
 
         $prev = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id - 1)->first();
-        $prevv =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id - 2)->first();
+        //$prevv =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id - 2)->first();
         $next = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id + 1)->first();
-       // $nexttt = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id + 2)->first();
        
         //Trip Start
         $currentRoute = DB::connection('mysql')->table('routes')->where('LoadingPoint', '=', $trip->GFupdated1)->first();
-        $prevRoute = DB::connection('mysql')->table('routes')->where('LoadingPoint', '=', $prev->GFupdated1)->first();
+       // $prevRoute = DB::connection('mysql')->table('routes')->where('LoadingPoint', '=', $prev->GFupdated1)->first();
         $recentprev = DB::connection('mysql')->table('baselinetest')->whereNotNull('TripClassificationv3')->where('id','<', $trip->id)->orderBy('id', 'desc')->first();
 
-
         if($recentprev->TripClassificationv3 == 'Trip End'){
+        //  dd($trip);
 
           if($currentRoute){
-             
-      
-            if($currentRoute->TripHaul == 'Long'){
-
-              $LineCount = 16;
-
-             }elseif($currentRoute->TripHaul == 'Medium'){
-
-                $LineCount = 9;
-
-              }elseif($currentRoute->TripHaul == 'short'){
-
-                $LineCount = 5;
-
-              }else{
-
-                $LineCount = 9;
-
-              }
+                        
+            $LineCount = $currentRoute->LineCount;
 
           }else{
 
             $LineCount = 9;
+
           }
 
 
@@ -5571,22 +5575,37 @@ public function RmsRawDataApi()
            ->where('Truck','=', $trip->Truck)
            ->get();
 
-
+             //dd($tripEndCheck);
            $offloadCheck = null;
+       
 
            foreach($tripEndCheck as $RouteCheck){
           
+           if($RouteCheck->EventTime >= 60){
+
+            break;
+
+           }
+
+   
             $routeSet = DB::connection('mysql')->table('routes')->where('LoadingPoint', '=', $trip->GFupdated1)->where('OffloadingPoint','=', $RouteCheck->GFupdated1)->first();
 
             if($routeSet){
-            
-              $offloadCheck = 1;
+             
+              $offloadCheck = 1;         
 
             }
+
+
           
            }
+          
+         //  dd($offloadCheck);
+         
 
           if($offloadCheck){
+
+         //  dd($trip,$idyacho);
         
           $prev = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id )->update([
 
@@ -5602,18 +5621,38 @@ public function RmsRawDataApi()
         $currentRoute1 = DB::connection('mysql')->table('routes')->where('LoadingPoint', '=', $recentprev->GFupdated1)->where('OffloadingPoint','=', $trip->GFupdated1)->first();
         if($next != null){
         $nextRoute = DB::connection('mysql')->table('routes')->where('LoadingPoint', '=', $recentprev->GFupdated1)->where('OffloadingPoint','=', $next->GFupdated1)->first();
-         if($nextRoute && $currentRoute1){    
-          if($currentRoute1->id != $nextRoute->id){
-            $check = 0;
+         if($nextRoute && $currentRoute1){ 
+
+         
+          if($currentRoute1->id != $nextRoute->id ){
+             if($recentprev->TripClassificationv3 == 'Trip Start'){
+              $check = 0;
+             }else{
+              $check = 1;
+             }
+         
+
           }else{
-            $check = 1;
+
+            if($trip->EventTime < 60 && $next->EventTime > 60 && $recentprev->TripClassificationv3 == 'Trip Start'){
+
+              $check = 0;
+
+            }else{
+
+              $check = 1;
+
+            }
+     
+
           }
+
+         
          }else{
           $check = 0;
          }
 
         if($currentRoute1 != null && $check == 0 && $recentprev->TripClassificationv3 == 'Trip Start'){
-        //  dd($trip);
        
           $prev = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id )->update([
 
@@ -5621,13 +5660,15 @@ public function RmsRawDataApi()
 
           ]); 
 
-     
+        //  dd('trip end...');
 
         }
 
         }
      
       }
+
+    //  dd('done...');
 
       $truckupdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $rows->id)->update([
 
@@ -5636,12 +5677,12 @@ public function RmsRawDataApi()
       ]);
 
       Log::info('Finished Trip Classification V3 on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
-     
+    
     }
 
-     //  dd('nothing...'); 
+     ///  dd('nothing...'); 
  
-    }
+ }
 
 
    public function TripClassificationV3Updated()
@@ -5672,7 +5713,7 @@ public function RmsRawDataApi()
     ->orderBy('id', 'desc')
     ->first();
  
-     if($interval){
+     if($interval){ 
 
     $newStartCheck =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$interval->id, $nextTrip->id])
     ->where('Truck', '=', $rows->Truck)
@@ -5991,6 +6032,8 @@ public function RmsRawDataApi()
    
         
      }
+
+
  
     public function Deadruns()
     {
@@ -6008,7 +6051,7 @@ public function RmsRawDataApi()
           foreach ($trucks as  $truckrows => $trip) {
               
           $nextTrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id )->where('Truck', '=', $rows->Truck)->where('TripClassificationv3','=', 'Trip Start')->first(); 
-        //  Log::info('Started sub dead runs on', ['Truck' => $trip->id,  '#' => $truckCode]);
+     
           if($nextTrip != null){
              
             $count =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$trip->id, $nextTrip->id])
@@ -6016,8 +6059,13 @@ public function RmsRawDataApi()
             ->where('GFupdated1','=','Witbank yard')
             ->count();
 
+            $sixtycount =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$trip->id, $nextTrip->id])
+            ->where('Truck','=', $trip->Truck)
+            ->where('EventTime','>=', 60)
+            ->count();
+
            // dd($count);
-            if($count == 0){
+            if($count == 0  && $sixtycount == 0){
 
               $recentprev = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('TripClassificationv3','=', 'Trip Start')->where('id','<', $trip->id)->orderBy('id', 'desc')->first();
                 if($recentprev != null && $nextTrip != null){
@@ -6046,7 +6094,7 @@ public function RmsRawDataApi()
           
                ]); 
           
-            }else{
+            }elseif($count > 0  && $sixtycount == 0){
 
               $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('id', '=', $nextTrip->id)->update([
 
@@ -6108,9 +6156,11 @@ public function RmsRawDataApi()
               }
         
 
-              }
+               }
 
            
+            }else{
+
             }
 
   
@@ -6123,6 +6173,1901 @@ public function RmsRawDataApi()
          } 
      
    }
+
+
+
+
+
+   public function OutofService()
+   {
+         ini_set('max_execution_time', 360000000000); // 3600 seconds = 60 minutes
+         set_time_limit(360000000000);
+ 
+         $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
+    
+         foreach ($truckData as $truckCode => $rows) {
+ 
+         Log::info('Started  Out of Service on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+
+         $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('TripClassificationv3', '=', 'Trip End')->orderBy('DateUpdated')->orderBy('Time')->get();
+       //  $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('id', '=', 337274)->orderBy('DateUpdated')->orderBy('Time')->get();
+
+         foreach ($trucks as  $truckrows => $trip) {
+
+          Log::info('Started Dead runs v2 line on', ['Truck' => $rows->Truck,  'id' => $trip->id]);
+
+          $nextTrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id )->where('Truck', '=', $rows->Truck)->where('TripClassificationv3','=', 'Trip Start')->first(); 
+             if($nextTrip){
+         $tripCheckCount =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->whereBetween('id', [$trip->id, $nextTrip->id])
+         ->where('Truck','=', $trip->Truck)
+         ->where('EventTime','>=', 60)
+         ->get();
+            
+         if($tripCheckCount != null){
+
+          foreach($tripCheckCount as $tripCheck){
+
+            $tripsclear =  DB::connection('mysql')->table('baselinetest')->where('id', $tripCheck->id)->update([
+
+              'LoadingTripClassification' => 'Trip Start,Trip End',
+              'LoadingTripClassificationv2' => 'Out of Service',
+
+             ]);
+
+          }
+         
+         }   
+  
+        }
+         }
+        
+ 
+         Log::info('Finished Out of Service on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+ 
+        // dd('done');
+
+        } 
+    
+     }
+
+
+
+
+
+
+
+
+
+   public function DeadrunsV2()
+   {
+         ini_set('max_execution_time', 360000000000); // 3600 seconds = 60 minutes
+         set_time_limit(360000000000);
+ 
+         $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
+    
+         foreach ($truckData as $truckCode => $rows) {
+ 
+         Log::info('Started Dead runs v2 on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+
+         $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('LoadingTripClassification', '=', 'Trip Start')->where('TripClassificationv3', '=', 'Trip End')->orderBy('DateUpdated')->orderBy('Time')->get();
+       //  $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('id', '=', 337274)->orderBy('DateUpdated')->orderBy('Time')->get();
+
+         foreach ($trucks as  $truckrows => $trip) {
+
+          Log::info('Started Dead runs v2 line on', ['Truck' => $rows->Truck,  'id' => $trip->id]);
+
+          $nextTrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id )->where('Truck', '=', $rows->Truck)->where('TripClassificationv3','=', 'Trip Start')->first(); 
+    
+          // dd($trip,$nextTrip);
+
+         
+         $tripCheckCount =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->whereBetween('id', [$trip->id, $nextTrip->id])
+         ->where('Truck','=', $trip->Truck)
+         ->where('EventTime','>=', 60)
+         ->count();
+            
+         if( $tripCheckCount > 1){
+        //  dd('2 or more');
+          if($nextTrip->id - $trip->id > 1){
+
+            $tripsclear =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->whereBetween('id', [$trip->id + 1, $nextTrip->id - 1])->update([
+
+             'LoadingTripClassification' => null,
+             'LoadingTripClassificationv2' => null,
+
+            ]);
+
+            
+            $tripsclear =  DB::connection('mysql')->table('baselinetest')->where('id', $nextTrip->id)->update([
+
+              'LoadingTripClassification' => 'Trip End',
+              'LoadingTripClassificationv2' => 'Out of Service',
+
+
+             ]);
+
+
+          }else{
+
+            $tripsclear =  DB::connection('mysql')->table('baselinetest')->where('id', $nextTrip->id)->update([
+
+              'LoadingTripClassification' => 'Trip End',
+              'LoadingTripClassificationv2' => 'Out of Service',
+
+             ]);
+
+
+          }
+
+
+         }
+        
+           //dd( $tripCheck);
+           if( $tripCheckCount == 1){
+          //  dd("one");
+
+            $tripCheck =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->whereBetween('id', [$trip->id, $nextTrip->id])
+            ->where('Truck','=', $trip->Truck)
+            ->where('EventTime','>=', 60)
+            ->first();
+
+            
+           if($tripCheck){
+
+            $trips =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->whereBetween('id', [$trip->id, $tripCheck->id])
+            ->where('Truck','=', $trip->Truck)
+            ->orderBy('id', 'desc')
+            ->get();
+
+            // dd($nextTrip->id - $trip->id);
+
+            if($nextTrip->id - $trip->id > 1){
+
+              $tripsclear =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->whereBetween('id', [$trip->id + 1, $nextTrip->id - 1])->update([
+
+               'LoadingTripClassification' => null,
+               'LoadingTripClassificationv2' => null,
+
+              ]);
+
+              
+              $tripsclear =  DB::connection('mysql')->table('baselinetest')->where('id', $nextTrip->id)->update([
+
+                'LoadingTripClassification' => 'Trip End',
+ 
+               ]);
+  
+
+            }
+
+            $abovecheck = null;
+            $abovecheckId = null;
+            $abovecheckSet = false; // Flag to check if abovecheck has already been set
+
+            foreach($trips as $count => $onetrip){
+      
+
+              if (isset($trips[$count + 1])) {
+
+                $nextTrip2 = $trips[$count + 1];
+        
+                if (($onetrip->GFupdated1 != $nextTrip2->GFupdated1 && $onetrip->GFupdated1 == $tripCheck->GFupdated1)){
+                  
+                  if (!$abovecheckSet) { // Only update abovecheck once
+                    if ($onetrip != $tripCheck) {
+                        $abovecheck = 2;
+                        $abovecheckId = $onetrip->id;
+                    } else {
+                        $abovecheck = 1;
+                        $abovecheckId = $onetrip->id;
+                    }
+                    $abovecheckSet = true; // Mark abovecheck as set
+                }
+                  ////////now do belowcheck ////////
+                  $below = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('id', '=', $tripCheck->id + 1)->first();
+                 // dd($below->LoadingTripClassification);
+                  if($below->id <= $nextTrip->id){
+           
+                    if($tripCheck->GFupdated1 != $below->GFupdated1){
+
+                      $belowcheck = 1;
+                      $belowcheckId = $tripCheck->id;
+
+                    }else{
+
+                      //more then one
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->whereBetween('id', [$tripCheck->id, $nextTrip->id])
+                      ->where('Truck','=', $trip->Truck)
+                      //->orderBy('id', 'desc')
+                      ->get();
+
+                   // dd( $trips2);
+          
+                      foreach($trips2 as $counts => $twotrip){
+                      
+                        if (isset($trips2[$counts + 1])) {
+                          $nextTrip1 = $trips2[$counts + 1];
+                         // dd($twotrip, $nextTrip1 );
+                          if ($twotrip->GFupdated1 != $nextTrip1->GFupdated1){
+                           // dd($twotrip, $nextTrip1 );  
+                            $belowcheck = 2;
+                            $belowcheckId = $twotrip->id;
+                               break;
+                          }
+                      }else{
+
+                        $belowcheck = 2;
+                        $belowcheckId = $twotrip->id;
+                      }
+          
+                      }
+
+                    }
+
+                  }elseif($below->LoadingTripClassification != null){
+
+                    $belowcheck = 2;
+                    $belowcheckId = $below->id;
+
+                  }else{
+
+                    
+                    $belowcheck = 1;
+                    $belowcheckId = $tripCheck->id;
+
+                  }
+
+              
+
+
+                }elseif(($onetrip->GFupdated1 == $nextTrip2->GFupdated1 && $nextTrip2->LoadingTripClassification != NULL )){
+
+                  if (!$abovecheckSet) { // Only update abovecheck once
+
+                        $abovecheck = 2;
+                        $abovecheckId = $nextTrip2->id;
+                 
+                    $abovecheckSet = true; // Mark abovecheck as set
+                }
+                  ////////now do belowcheck ////////
+                //  if($nextTrip2->LoadingTripClassification != null){
+                  $below = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('id', '=', $tripCheck->id + 1)->first();
+                 // dd($below->LoadingTripClassification);
+                  if($below->id <= $nextTrip->id){
+           
+                    if($tripCheck->GFupdated1 != $below->GFupdated1){
+
+                      $belowcheck = 1;
+                      $belowcheckId = $tripCheck->id;
+
+                    }else{
+
+                      //more then one
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->whereBetween('id', [$tripCheck->id, $nextTrip->id])
+                      ->where('Truck','=', $trip->Truck)
+                      //->orderBy('id', 'desc')
+                      ->get();
+
+                   // dd( $trips2);
+          
+                      foreach($trips2 as $counts => $twotrip){
+                      
+                        if (isset($trips2[$counts + 1])) {
+                          $nextTrip1 = $trips2[$counts + 1];
+                         // dd($twotrip, $nextTrip1 );
+                          if ($twotrip->GFupdated1 != $nextTrip1->GFupdated1){
+                           // dd($twotrip, $nextTrip1 );  
+                            $belowcheck = 2;
+                            $belowcheckId = $twotrip->id;
+                               break;
+                          }
+                      }else{
+
+                        $belowcheck = 2;
+                        $belowcheckId = $twotrip->id;
+                      }
+          
+                      }
+
+                    }
+
+                  }elseif($below->LoadingTripClassification != null){
+
+                    $belowcheck = 2;
+                    $belowcheckId = $below->id;
+
+                  }else{
+
+                    
+                    $belowcheck = 1;
+                    $belowcheckId = $tripCheck->id;
+
+                  }
+
+              //  }
+
+                }else{
+
+                }
+           
+            } 
+
+            }
+
+       
+
+            //dd($abovecheck, $abovecheckId, $belowcheck, $belowcheckId);
+
+         if($abovecheck == 1 && $belowcheck == 1){
+
+
+          $curentabove =  DB::connection('mysql')->table('baselinetest')->where('id', '=', $abovecheckId)->where('Truck','=', $trip->Truck)->first();
+          $currentbelow = DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId)->where('Truck','=', $trip->Truck)->first();
+        
+
+          if($curentabove->LoadingTripClassification == null && $currentbelow->LoadingTripClassification == null){
+
+              $abtrip = DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId - 1)->where('Truck','=', $trip->Truck)->first();
+              $blwtrip = DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1)->where('Truck','=', $trip->Truck)->first();
+
+            if($abtrip->LoadingTripClassification == null &&  $blwtrip->LoadingTripClassification == null){
+
+
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id',  $abovecheckId - 1)->where('Truck','=', $trip->Truck)->update([
+                  
+          
+                'LoadingTripClassification' => 'Trip End',
+                'LoadingTripClassificationv2' => 'Dead run (to depot)'    
+
+              ]);
+
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+        
+     
+                'LoadingTripClassification' => 'Trip Start,Trip End',
+                'LoadingTripClassificationv2' => 'Out of Service'        
+
+              ]);
+
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId  + 1)->where('Truck','=', $trip->Truck)->update([
+
+            
+                'LoadingTripClassification' => 'Trip Start',   
+
+              ]);
+
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $nextTrip->id)->where('Truck','=', $trip->Truck)->update([
+
+            
+                'LoadingTripClassification' => 'Trip End',  
+                'LoadingTripClassificationv2' => 'Dead run (from depot)'    
+
+              ]);
+
+            }
+            if( $abtrip->LoadingTripClassification == null &&  $blwtrip->LoadingTripClassification != null){
+
+               // dd("umu");
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId - 1)->where('Truck','=', $trip->Truck)->update([
+                  
+          
+                'LoadingTripClassification' => 'Trip End',
+                'LoadingTripClassificationv2' => 'Dead run (to depot)'    
+
+              ]);
+
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId)->where('Truck','=', $trip->Truck)->update([
+                  
+          
+                'LoadingTripClassification' => 'Trip Start,Trip End',
+                'LoadingTripClassificationv2' => 'Out of Service'    
+
+              ]);
+
+
+      
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId  + 1)->where('Truck','=', $trip->Truck)->update([
+
+            
+                'LoadingTripClassification' => 'Trip Start,Trip End',
+                'LoadingTripClassificationv2' => 'Dead run (from depot)'     
+              ]);
+
+            }
+            if( $abtrip->LoadingTripClassification != null &&  $blwtrip->LoadingTripClassification == null){
+
+
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId)->where('Truck','=', $trip->Truck)->update([
+                      
+                'LoadingTripClassification' => 'Trip End',
+                'LoadingTripClassificationv2' => 'Dead run (to depot)'   
+
+              ]);
+
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1)->where('Truck','=', $trip->Truck)->update([
+                      
+                'LoadingTripClassification' => 'Trip Start', 
+                
+              ]);
+
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $nextTrip->id)->where('Truck','=', $trip->Truck)->update([
+
+            
+                'LoadingTripClassification' => 'Trip End',  
+                'LoadingTripClassificationv2' => 'Out of Service'    
+
+              ]);
+
+            //  dd('dsa;dga;UKG');
+            }
+            if( $abtrip->LoadingTripClassification != null &&  $blwtrip->LoadingTripClassification != null){
+
+
+      
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+        
+     
+                'LoadingTripClassification' => 'Trip Start,Trip End',
+                'LoadingTripClassificationv2' => 'Our of Service'         
+
+              ]);
+
+
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1)->where('Truck','=', $trip->Truck)->update([
+        
+     
+                'LoadingTripClassification' => 'Trip Start,Trip End',
+                'LoadingTripClassificationv2' => 'Dead run (from depot)'         
+
+              ]);
+
+               // dd("sd;ghsa;ubhspiubpupi");
+
+            }
+
+          }elseif($curentabove->LoadingTripClassification != null && $currentbelow->LoadingTripClassification != null && $curentabove->LoadingTripClassification != 'Trip Start'){
+
+
+            $abtrip = DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId - 1)->where('Truck','=', $trip->Truck)->first();
+            $blwtrip = DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId)->where('Truck','=', $trip->Truck)->first();
+
+          if( $abtrip->LoadingTripClassification == null &&  $blwtrip->LoadingTripClassification != null){
+
+
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+                
+        
+              'LoadingTripClassification' => 'Trip Start,Trip End',
+              'LoadingTripClassificationv2' => 'Out of Service'    
+
+            ]);
+
+    
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId  - 1)->where('Truck','=', $trip->Truck)->update([
+
+          
+              'LoadingTripClassification' => 'Trip End',
+              'LoadingTripClassificationv2' => 'Dead run (from depot)'     
+            ]);
+
+          }
+     
+          if( $abtrip->LoadingTripClassification != null &&  $abtrip->LoadingTripClassification != null){
+
+
+               /////////////check this one with jeebhay
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+      
+   
+              'LoadingTripClassification' => 'Trip End',
+              'LoadingTripClassificationv2' => 'Out of Service'         
+
+            ]);
+
+
+   
+
+          }
+
+
+
+          }else{
+
+          }
+
+
+              }else{
+
+       
+///panapa
+        $curentabove  = DB::connection('mysql')->table('baselinetest')->where('id', '=', $abovecheckId)->where('Truck','=', $trip->Truck)->first();
+        $currentbelow = DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId)->where('Truck','=', $trip->Truck)->first();
+
+          // dd($curentabove->LoadingTripClassification,$currentbelow->LoadingTripClassification);
+        
+        if($curentabove->LoadingTripClassification == null && $currentbelow->LoadingTripClassification == null){
+            /////////////////yaita iyi///////////////////
+            $abtrip = DB::connection('mysql')->table('baselinetest')->where('id', '=', $abovecheckId - 1)->where('Truck','=', $trip->Truck)->first();
+            $blwtrip = DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1)->where('Truck','=', $trip->Truck)->first();
+
+           //dd( $abtrip->LoadingTripClassification, $blwtrip->LoadingTripClassification);
+
+           if( $abtrip->LoadingTripClassification == null &&  $blwtrip->LoadingTripClassification == null){  
+                //   dd('one');
+                    //this one yaita no need to go back to it.
+                        
+                if($belowcheck == 2 && $abovecheck == 2){
+                      //zvaita
+                      // dd('1');
+                
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+                              
+                      'LoadingTripClassification' => 'Trip End',
+                      'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+                      
+                      ]);
+
+                    
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+                              
+                      'LoadingTripClassification' => 'Trip Start',
+                  
+                    ]);
+
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+                              
+                      'LoadingTripClassification' => 'Trip End',
+                      'LoadingTripClassificationv2' => 'Out of Service'  
+                      
+                    ]);
+
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+                              
+                      'LoadingTripClassification' => 'Trip Start',
+                      
+                    ]);
+
+
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $nextTrip->id )->where('Truck','=', $trip->Truck)->update([
+                              
+                      'LoadingTripClassification' => 'Trip End',
+                      'LoadingTripClassificationv2' => 'Dead run (from depot)'  
+                      
+                    ]);
+
+                  
+        
+              }elseif($belowcheck == 2 && $abovecheck == 1){
+                    //zvaita
+                // dd('2fdalbfnpbbj');
+                  if( $abovecheckId - 1 != $belowcheckId){
+
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId - 1)->where('Truck','=', $trip->Truck)->update([
+                              
+                        'LoadingTripClassification' => 'Trip End',
+                        'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+                        
+                      ]);
+
+
+                        $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([         
+                    
+                          'LoadingTripClassification' => 'Trip Start', 
+                          
+              
+                        ]);
+            
+
+                        $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+            
+                    
+                          'LoadingTripClassification' => 'Trip End', 
+                          'LoadingTripClassificationv2' => 'Out of Service'   
+                    
+              
+                        ]);
+
+                        
+                        $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+                          
+                          'LoadingTripClassification' => 'Trip Start',               
+              
+                        ]);
+
+                        $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $nextTrip->id )->where('Truck','=', $trip->Truck)->update([
+                              
+                          'LoadingTripClassification' => 'Trip End',
+                          'LoadingTripClassificationv2' => 'Dead run (from depot)'  
+                          
+                        ]);
+
+                      }else{
+
+
+                        $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+                              
+                          'LoadingTripClassification' => 'Trip End',
+                          'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+                          
+                        ]);
+    
+    
+                          $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1 )->where('Truck','=', $trip->Truck)->update([         
+                      
+                          'LoadingTripClassification' => 'Trip Start,Trip End', 
+                            'LoadingTripClassificationv2' => 'Out of Service'
+                            
+              
+                        ]);
+    
+                          
+                          $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+                            
+                          'LoadingTripClassification' => 'Trip Start',               
+              
+                        ]);
+    
+                        $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $nextTrip->id )->where('Truck','=', $trip->Truck)->update([
+                                
+                          'LoadingTripClassification' => 'Trip End',
+                          'LoadingTripClassificationv2' => 'Dead run (from depot)'  
+                          
+                        ]);
+
+                      }
+                    
+                
+                
+              }elseif($belowcheck == 1 && $abovecheck == 2){
+
+                //$belowcheck == 1&& $abovecheck == 2
+                //  dd('3');  
+
+
+                if($belowcheckId - 1 == $abovecheckId){
+
+                  $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+      
+              
+                    'LoadingTripClassification' => 'Trip End', 
+                    'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+              
+            
+                  ]);
+
+                  $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+      
+              
+                    'LoadingTripClassification' => 'Trip Start,Trip End', 
+                    'LoadingTripClassificationv2' => 'Out of Service'   
+              
+            
+                  ]);
+
+                  $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+      
+              
+                    'LoadingTripClassification' => 'Trip Start', 
+              
+            
+                  ]);
+
+                  $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $nextTrip->id )->where('Truck','=', $trip->Truck)->update([
+                                
+                    'LoadingTripClassification' => 'Trip End',
+                    'LoadingTripClassificationv2' => 'Dead run (from depot)'  
+                    
+                  ]);
+                  
+              
+
+                  }else{
+
+                    
+                  $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+      
+              
+                    'LoadingTripClassification' => 'Trip End', 
+                    'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+              
+            
+                  ]);
+
+                  $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1)->where('Truck','=', $trip->Truck)->update([
+                
+                    'LoadingTripClassification' => 'Trip Start',       
+            
+                  ]);
+
+                  $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+      
+              
+                    'LoadingTripClassification' => 'Trip End', 
+                    'LoadingTripClassificationv2' => 'Out of Service'  
+              
+            
+                  ]);
+
+                  $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1)->where('Truck','=', $trip->Truck)->update([
+      
+              
+                    'LoadingTripClassification' => 'Trip Start',  
+              
+            
+                  ]);
+
+
+                  $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $nextTrip->id )->where('Truck','=', $trip->Truck)->update([
+                                
+                    'LoadingTripClassification' => 'Trip End',
+                    'LoadingTripClassificationv2' => 'Dead run (from depot)'  
+                    
+                  ]);
+                  
+
+                  }
+              
+        
+              }else{
+                //  dd('4');
+              }
+
+          }
+          if( $abtrip->LoadingTripClassification == null &&  $blwtrip->LoadingTripClassification != null){
+           // dd('twfdo');
+            //this one yaita manje dont come back to it.....
+            
+                  if($belowcheck == 2 && $abovecheck == 2){
+                      //zvaita
+                      // dd('1');
+                
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+                              
+                      'LoadingTripClassification' => 'Trip End',
+                      'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+                      
+                      ]);
+
+                    
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+                              
+                      'LoadingTripClassification' => 'Trip Start',
+                  
+                    ]);
+
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+                              
+                      'LoadingTripClassification' => 'Trip End',
+                      'LoadingTripClassificationv2' => 'Out of Service'  
+                      
+                    ]);
+
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1)->where('Truck','=', $trip->Truck)->update([
+                              
+                      'LoadingTripClassification' => 'Trip Start,Trip End',
+                      'LoadingTripClassificationv2' => 'Dead run (from depot)'  
+                      
+                      
+                    ]);
+
+            
+        
+                }elseif($belowcheck == 2 && $abovecheck == 1){
+                    //zvaita
+                  ///////////// dd('2');
+                  if( $abovecheckId - 1 != $belowcheckId){
+
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+                              
+                        'LoadingTripClassification' => 'Trip End',
+                        'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+                        
+                      ]);
+
+
+                        $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1 )->where('Truck','=', $trip->Truck)->update([         
+                    
+                          'LoadingTripClassification' => 'Trip Start', 
+                          
+              
+                        ]);
+            
+
+                        $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+            
+                    
+                          'LoadingTripClassification' => 'Trip End', 
+                          'LoadingTripClassificationv2' => 'Out of Service'   
+                    
+              
+                        ]);
+
+                        
+                        $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+                          
+                          'LoadingTripClassification' => 'Trip Start,Trip End',  
+                          'LoadingTripClassificationv2' => 'Dead run (from depot)'              
+              
+                        ]);
+
+                      }else{
+
+
+                        $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+                              
+                          'LoadingTripClassification' => 'Trip End',
+                          'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+                          
+                        ]);
+
+
+                          $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1 )->where('Truck','=', $trip->Truck)->update([         
+                      
+                          'LoadingTripClassification' => 'Trip Start,Trip End', 
+                            'LoadingTripClassificationv2' => 'Out of Service'
+                            
+              
+                        ]);
+
+                          
+                          $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+                            
+                            
+                            'LoadingTripClassification' => 'Trip Start,Trip End', 
+                            'LoadingTripClassificationv2' => 'Dead run (to depot)'            
+              
+                        ]);
+
+
+                      }
+                    
+                
+                
+                }elseif($belowcheck == 1 && $abovecheck == 2){
+
+                    //$belowcheck == 1&& $abovecheck == 2
+                    //  dd('3');  
+
+
+                    if($belowcheckId - 1 == $abovecheckId){
+
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+
+                  
+                        'LoadingTripClassification' => 'Trip End', 
+                        'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+                  
+                
+                      ]);
+
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+
+                  
+                        'LoadingTripClassification' => 'Trip Start,Trip End', 
+                        'LoadingTripClassificationv2' => 'Out of Service'   
+                  
+                
+                      ]);
+
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+
+                  
+                        'LoadingTripClassification' => 'Trip Start,Trip End', 
+                        'LoadingTripClassificationv2' => 'Dead run (from depot)' 
+                
+                      ]);
+
+                  
+
+                      }else{
+
+                        
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+
+                  
+                        'LoadingTripClassification' => 'Trip End', 
+                        'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+                  
+                
+                      ]);
+
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1)->where('Truck','=', $trip->Truck)->update([
+                    
+                        'LoadingTripClassification' => 'Trip Start',       
+                
+                      ]);
+
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+
+                  
+                        'LoadingTripClassification' => 'Trip End', 
+                        'LoadingTripClassificationv2' => 'Out of Service'  
+                  
+                
+                      ]);
+
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1)->where('Truck','=', $trip->Truck)->update([
+
+                  
+                        'LoadingTripClassification' => 'Trip Start,Trip End',  
+                        'LoadingTripClassificationv2' => 'Dead run (from depot)' 
+                
+                      ]);
+
+
+                      }
+                  
+        
+              }else{
+                //  dd('4');
+              }
+
+          }
+          if( $abtrip->LoadingTripClassification != null && $blwtrip->LoadingTripClassification == null){
+           //  dd('three');
+
+            //this one yaita manje dont come back to it.....
+            
+            if($belowcheck == 2 && $abovecheck == 2){
+              //zvaita
+              // dd('1');
+        
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+                      
+              'LoadingTripClassification' => 'Trip End',
+              'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+              
+              ]);
+
+            
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+                      
+              'LoadingTripClassification' => 'Trip Start',
+          
+            ]);
+
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+                      
+              'LoadingTripClassification' => 'Trip End',
+              'LoadingTripClassificationv2' => 'Out of Service'  
+              
+            ]);
+
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1)->where('Truck','=', $trip->Truck)->update([
+                      
+              'LoadingTripClassification' => 'Trip Start',
+              
+              
+            ]);
+
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $nextTrip->id )->where('Truck','=', $trip->Truck)->update([
+                      
+              'LoadingTripClassification' => 'Trip End',
+              'LoadingTripClassificationv2' => 'Dead run (from depot)'  
+              
+              
+            ]);
+
+
+    
+
+              }elseif($belowcheck == 2 && $abovecheck == 1){
+                //zvaita
+              // dd('2');
+              if( $abovecheckId + 1 != $belowcheckId){
+              //  dd('this');
+              
+        
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+        
+                
+                      'LoadingTripClassification' => 'Trip End', 
+                      'LoadingTripClassificationv2' => 'Out of Service'   
+                
+          
+                    ]);
+
+                    
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+                      
+                      'LoadingTripClassification' => 'Trip Start',  
+                  
+          
+                    ]);
+
+
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $nextTrip->id )->where('Truck','=', $trip->Truck)->update([
+                          
+                      'LoadingTripClassification' => 'Trip End',
+                      'LoadingTripClassificationv2' => 'Dead run (from depot)'  
+                      
+                      
+                    ]);
+
+                  }else{
+                  //  dd('that');
+
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+                          
+                      'LoadingTripClassification' => 'Trip End',
+                      'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+                      
+                    ]);
+
+
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1 )->where('Truck','=', $trip->Truck)->update([         
+                  
+                      'LoadingTripClassification' => 'Trip Start,Trip End', 
+                        'LoadingTripClassificationv2' => 'Out of Service'
+                        
+          
+                    ]);
+
+                      
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+                        
+                        
+                        'LoadingTripClassification' => 'Trip Start', 
+                            
+          
+                    ]);
+
+
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $nextTrip->id )->where('Truck','=', $trip->Truck)->update([
+                          
+                      'LoadingTripClassification' => 'Trip End',
+                      'LoadingTripClassificationv2' => 'Dead run (from depot)'  
+                                    
+                    ]);
+
+
+                  }
+                
+            
+            
+              }elseif($belowcheck == 1 && $abovecheck == 2){
+
+                  //$belowcheck == 1&& $abovecheck == 2
+                  //dd('3nn');  
+
+
+                  if($belowcheckId - 1 == $abovecheckId){
+
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+
+                
+                      'LoadingTripClassification' => 'Trip End', 
+                      'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+                
+              
+                    ]);
+
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+
+                
+                      'LoadingTripClassification' => 'Trip Start,Trip End', 
+                      'LoadingTripClassificationv2' => 'Out of Service'   
+                
+              
+                    ]);
+
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1)->where('Truck','=', $trip->Truck)->update([
+
+                
+                      'LoadingTripClassification' => 'Trip Start',  
+                
+              
+                    ]);
+
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $nextTrip->id  )->where('Truck','=', $trip->Truck)->update([
+
+                
+                      'LoadingTripClassification' => 'Trip End', 
+                      'LoadingTripClassificationv2' => 'Dead run (from depot)' 
+              
+                    ]);
+
+                
+
+                    }else{
+
+                      
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+
+                
+                      'LoadingTripClassification' => 'Trip End', 
+                      'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+                
+              
+                    ]);
+
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1)->where('Truck','=', $trip->Truck)->update([
+                  
+                      'LoadingTripClassification' => 'Trip Start',       
+              
+                    ]);
+
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+
+                
+                      'LoadingTripClassification' => 'Trip End', 
+                      'LoadingTripClassificationv2' => 'Out of Service'  
+                
+              
+                    ]);
+
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1)->where('Truck','=', $trip->Truck)->update([
+
+                
+                      'LoadingTripClassification' => 'Trip Start',  
+                
+              
+                    ]);
+
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $nextTrip->id  )->where('Truck','=', $trip->Truck)->update([
+
+                
+                      'LoadingTripClassification' => 'Trip End', 
+                      'LoadingTripClassificationv2' => 'Dead run (from depot)' 
+              
+                    ]);
+
+
+
+                    }
+                
+
+            }else{
+              //  dd('4');
+            }
+
+          }
+          if( $abtrip->LoadingTripClassification != null &&  $blwtrip->LoadingTripClassification != null){
+         
+               
+               if($belowcheck == 2 && $abovecheck == 2){
+                   //zvaita
+                //   dd('1');
+              
+                  $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+                            
+                    'LoadingTripClassification' => 'Trip End',
+                    'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+                    
+                  ]);
+
+                  $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+        
+                
+                    'LoadingTripClassification' => 'Trip Start',  
+              
+        
+                  ]);
+
+                  $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+        
+                
+                    'LoadingTripClassificationv2' => 'Dead run (from depot)'   
+              
+        
+                  ]);
+      
+                 if($abovecheckId +1 == $belowcheckId - 1){
+
+                  
+                  $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+                            
+                    'LoadingTripClassification' => 'Trip Start,Trip End',
+                    'LoadingTripClassificationv2' => 'Out of Service'  
+                    
+                  ]);
+
+
+                 }else{
+
+
+                $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id',  $abovecheckId +1)->where('Truck','=', $trip->Truck)->update([
+        
+                
+                  'LoadingTripClassification' => 'Trip Start',  
+              
+        
+                  ]);
+
+                  
+                  $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId - 1 )->where('Truck','=', $trip->Truck)->update([
+                            
+                    'LoadingTripClassification' => 'Trip End',
+                    'LoadingTripClassificationv2' => 'Out of Service'  
+                    
+                  ]);
+
+                 }   
+                
+      
+             }elseif($belowcheck == 2 && $abovecheck == 1){
+                 //zvaita
+                // dd('2');
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+                            
+                      'LoadingTripClassification' => 'Trip End',
+                      'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+                      
+                    ]);
+
+                    if( $abovecheckId + 1 == $belowcheckId){
+
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+          
+                  
+                        'LoadingTripClassification' => 'Trip Start,Trip End', 
+                        'LoadingTripClassificationv2' => 'Out of Service'   
+                  
+            
+                      ]);
+    
+                    }else{
+
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+                         
+                        'LoadingTripClassification' => 'Trip Start',                     
+            
+                      ]);
+
+
+                      $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+          
+                  
+                        'LoadingTripClassification' => 'Trip End', 
+                        'LoadingTripClassificationv2' => 'Out of Service'   
+                  
+            
+                      ]);
+                    }
+  
+                
+                    $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+          
+                  
+                      'LoadingTripClassification' => 'Trip Start,Trip End', 
+                      'LoadingTripClassificationv2' => 'Dead run (from depot)'  
+                
+          
+                    ]);
+         
+        
+              
+            }elseif($belowcheck == 1 && $abovecheck == 2){
+
+             //$belowcheck == 1&& $abovecheck == 2
+             //  dd('3');
+        
+   
+              if( $abovecheckId  == $belowcheckId - 1){
+
+
+                $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+    
+            
+                  'LoadingTripClassification' => 'Trip Start,Trip End', 
+                  'LoadingTripClassificationv2' => 'Out of Service'   
+            
+          
+                ]);
+
+                
+                $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+    
+            
+                  'LoadingTripClassification' => 'Trip End', 
+                  'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+            
+          
+                ]);
+          
+
+              }else{
+
+            
+
+                $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+                   
+                  'LoadingTripClassification' => 'Trip End',   
+                  'LoadingTripClassificationv2' => 'Dead run (from depot)'                    
+      
+                ]);
+
+                $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1)->where('Truck','=', $trip->Truck)->update([
+                   
+                  'LoadingTripClassification' => 'Trip Start',    
+                               
+      
+                ]);
+
+
+
+                $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+    
+            
+                  'LoadingTripClassification' => 'Trip End', 
+                  'LoadingTripClassificationv2' => 'Out of Service'   
+            
+      
+                ]);
+              }
+
+          
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+    
+            
+                'LoadingTripClassification' => 'Trip Start,Trip End', 
+                'LoadingTripClassificationv2' => 'Dead run (from depot)'  
+          
+    
+              ]);
+       
+      
+               }else{
+              //  dd('4');
+               }
+
+          }
+
+        }elseif($curentabove->LoadingTripClassification == null && $currentbelow->LoadingTripClassification != null){
+          /////////////////////////////////// yaita iyi//////////////
+         
+            $abtrip = DB::connection('mysql')->table('baselinetest')->where('id', '=', $abovecheckId - 1)->where('Truck','=', $trip->Truck)->first();
+            $blwtrip = DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId)->where('Truck','=', $trip->Truck)->first();
+          //  dd($abtrip->LoadingTripClassification ,$blwtrip->LoadingTripClassification );
+
+         if( $abtrip->LoadingTripClassification == null &&  $blwtrip->LoadingTripClassification != null){
+     
+           if($belowcheck == 2 && $abovecheck == 2){
+         
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+                    
+            'LoadingTripClassification' => 'Trip End',
+            'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+            
+            ]);
+
+          
+          $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+                    
+            'LoadingTripClassification' => 'Trip Start',
+        
+          ]);
+
+          $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+                    
+            'LoadingTripClassification' => 'Trip End',
+            'LoadingTripClassificationv2' => 'Out of Service'  
+            
+          ]);
+
+          //  dd('22');
+
+          }elseif($belowcheck == 2 && $abovecheck == 1){
+            /// dd('2');
+          if( $abovecheckId - 1 != $belowcheckId){
+
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+                      
+                'LoadingTripClassification' => 'Trip End',
+                'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+                
+              ]);
+
+
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1 )->where('Truck','=', $trip->Truck)->update([         
+          
+                'LoadingTripClassification' => 'Trip Start', 
+                
+    
+              ]);
+  
+
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+  
+          
+                'LoadingTripClassification' => 'Trip End', 
+                'LoadingTripClassificationv2' => 'Out of Service'   
+          
+    
+              ]);
+
+
+            }else{
+
+
+              $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+                    
+                'LoadingTripClassification' => 'Trip End',
+                'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+                
+              ]);
+
+
+                $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([         
+            
+                'LoadingTripClassification' => 'Trip Start,Trip End', 
+                  'LoadingTripClassificationv2' => 'Out of Service'
+                  
+    
+              ]);
+
+
+            }
+          
+          //  dd('12');
+          
+              }elseif($belowcheck == 1 && $abovecheck == 2){
+
+                if($belowcheckId - 1 == $abovecheckId){
+
+                  $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+
+              
+                    'LoadingTripClassification' => 'Trip End', 
+                    'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+              
+            
+                  ]);
+
+                $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+
+            
+                  'LoadingTripClassification' => 'Trip Start,Trip End', 
+                  'LoadingTripClassificationv2' => 'Out of Service'   
+            
+          
+                ]);
+
+        
+            }else{
+
+              
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+
+        
+              'LoadingTripClassification' => 'Trip End', 
+              'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+        
+      
+            ]);
+
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1)->where('Truck','=', $trip->Truck)->update([
+          
+              'LoadingTripClassification' => 'Trip Start',       
+      
+            ]);
+
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+
+        
+              'LoadingTripClassification' => 'Trip End', 
+              'LoadingTripClassificationv2' => 'Out of Service'  
+        
+      
+            ]);
+          
+
+            }
+        
+            //    dd('12');
+
+              }else{
+                //  dd('4');
+              }
+                }
+
+
+
+         if( $abtrip->LoadingTripClassification != null &&  $blwtrip->LoadingTripClassification != null){
+
+           if($belowcheck == 2 && $abovecheck == 2){
+
+
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+                      
+              'LoadingTripClassification' => 'Trip End',
+              'LoadingTripClassificationv2' => 'Dead run (to depot)'   
+            ]);
+  
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1)->where('Truck','=', $trip->Truck)->update([
+      
+   
+              'LoadingTripClassification' => 'Trip Start',        
+  
+            ]);
+  
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+  
+          
+              'LoadingTripClassification' => 'Trip End',  
+              'LoadingTripClassificationv2' => 'Out of Service' 
+  
+            ]);
+
+           // dd("22");
+
+           }elseif($belowcheck == 1 && $abovecheck == 2){
+
+
+          //////////////////
+          if($belowcheckId - 1 == $abovecheckId){
+
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+
+        
+              'LoadingTripClassification' => 'Trip End', 
+              'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+        
+      
+            ]);
+
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+
+        
+              'LoadingTripClassification' => 'Trip Start,Trip End', 
+              'LoadingTripClassificationv2' => 'Out of Service'   
+        
+      
+            ]);
+
+     
+            }else{
+
+              
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+
+        
+              'LoadingTripClassification' => 'Trip End', 
+              'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+        
+      
+            ]);
+
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1)->where('Truck','=', $trip->Truck)->update([
+          
+              'LoadingTripClassification' => 'Trip Start',       
+      
+            ]);
+
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+
+        
+              'LoadingTripClassification' => 'Trip End', 
+              'LoadingTripClassificationv2' => 'Out of Service'  
+        
+      
+            ]);
+          
+
+            }
+
+          //  dd("212");
+
+            }elseif($belowcheck == 2 && $abovecheck == 1){
+
+
+              if($abovecheckId - 1 == $belowcheckId){
+
+                $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+        
+            
+                  'LoadingTripClassification' => 'Trip End', 
+                  'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+            
+          
+                ]);
+        
+                $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+        
+            
+                  'LoadingTripClassification' => 'Trip Start,Trip End', 
+                  'LoadingTripClassificationv2' => 'Out of Service'   
+            
+          
+                ]);
+        
+             
+                }else{
+        
+                  
+                $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId )->where('Truck','=', $trip->Truck)->update([
+        
+            
+                  'LoadingTripClassification' => 'Trip End', 
+                  'LoadingTripClassificationv2' => 'Dead run (to depot)'  
+            
+          
+                ]);
+        
+                $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $abovecheckId + 1)->where('Truck','=', $trip->Truck)->update([
+              
+                  'LoadingTripClassification' => 'Trip Start',       
+          
+                ]);
+        
+                $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+        
+            
+                  'LoadingTripClassification' => 'Trip End', 
+                  'LoadingTripClassificationv2' => 'Out of Service'  
+            
+          
+                ]);
+               
+        
+                }
+
+        
+           }else{
+
+
+           }
+    
+
+          }
+
+
+        }elseif($curentabove->LoadingTripClassification != null && $currentbelow->LoadingTripClassification == null){
+
+
+                       /////////////////////////////////// iyi ka yaita iyi//////////////
+         
+            $abtrip = DB::connection('mysql')->table('baselinetest')->where('id', '=', $abovecheckId)->where('Truck','=', $trip->Truck)->first();
+            $blwtrip = DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1)->where('Truck','=', $trip->Truck)->first();
+          //  dd($abtrip->LoadingTripClassification ,$blwtrip->LoadingTripClassification );
+
+
+         if( $abtrip->LoadingTripClassification != null &&  $blwtrip->LoadingTripClassification != null){
+
+           if($belowcheck == 2 && $abovecheck == 2){  
+  
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+  
+          
+              'LoadingTripClassification' => 'Trip End',  
+              'LoadingTripClassificationv2' => 'Out of Service' 
+  
+            ]);
+
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1)->where('Truck','=', $trip->Truck)->update([
+  
+          
+              'LoadingTripClassification' => 'Trip Start,Trip End',  
+              'LoadingTripClassificationv2' => 'Dead run (from depot)'  
+  
+            ]);
+
+           // dd("22");
+
+           }elseif($belowcheck == 1 && $abovecheck == 2){
+
+
+          //////////////////
+          if($belowcheckId - 1 == $abovecheckId){
+
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+
+        
+              'LoadingTripClassification' => 'Trip End', 
+              'LoadingTripClassificationv2' => 'Out of Service'  
+        
+      
+            ]);
+
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1)->where('Truck','=', $trip->Truck)->update([
+
+        
+              'LoadingTripClassification' => 'Trip Start,Trip End', 
+              'LoadingTripClassificationv2' => 'Dead run (from depot)'   
+        
+      
+            ]);
+
+     
+            }else{
+
+ 
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1)->where('Truck','=', $trip->Truck)->update([
+          
+              'LoadingTripClassification' => 'Trip Start,Trip End', 
+              'LoadingTripClassificationv2' => 'Dead run (from depot)'  
+        
+            ]);
+
+            $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+
+        
+              'LoadingTripClassification' => 'Trip End', 
+              'LoadingTripClassificationv2' => 'Out of Service'  
+        
+      
+            ]);
+          
+
+            }
+
+          //  dd("212");
+
+            }else{
+
+
+           }
+    
+
+          }
+          //////////////////////////////////////////////
+
+          if( $abtrip->LoadingTripClassification != null &&  $blwtrip->LoadingTripClassification == null){
+
+            if($belowcheck == 2 && $abovecheck == 2){
+ 
+ 
+             $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1)->where('Truck','=', $trip->Truck)->update([
+       
+    
+               'LoadingTripClassification' => 'Trip Start',        
+   
+             ]);
+
+             $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $nextTrip->id  )->where('Truck','=', $trip->Truck)->update([
+
+                
+              'LoadingTripClassification' => 'Trip End', 
+              'LoadingTripClassificationv2' => 'Dead run (from depot)' 
+      
+            ]);
+   
+             $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+   
+           
+               'LoadingTripClassification' => 'Trip End',  
+               'LoadingTripClassificationv2' => 'Out of Service' 
+   
+             ]);
+ 
+            // dd("22");
+ 
+            }elseif($belowcheck == 1 && $abovecheck == 2){
+ 
+ 
+           //////////////////no need for if(above- 1 == $below) check       
+ 
+             $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId )->where('Truck','=', $trip->Truck)->update([
+ 
+         
+               'LoadingTripClassification' => 'Trip End', 
+               'LoadingTripClassificationv2' => 'Out of Service'  
+         
+       
+             ]);
+ 
+             $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $belowcheckId + 1 )->where('Truck','=', $trip->Truck)->update([
+ 
+         
+               'LoadingTripClassification' => 'Trip Start',   
+         
+       
+             ]);
+
+
+             $trips2 =  DB::connection('mysql')->table('baselinetest')->where('id', $nextTrip->id  )->where('Truck','=', $trip->Truck)->update([
+   
+           
+              'LoadingTripClassification' => 'Trip End',  
+              'LoadingTripClassificationv2' => 'Dead run (from depot)' 
+  
+            ]);
+ 
+      
+             
+ 
+           //  dd("212");
+ 
+             }else{
+ 
+ 
+            }
+     
+ 
+           }
+
+
+
+        }else{
+
+         ///////////nothing happening here
+
+        }
+
+      
+         }
+            
+           }
+
+          }
+
+
+         }
+        
+ 
+         Log::info('Finished Dead runs v2 on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+ 
+        // dd('done');
+
+        } 
+    
+     }
+
+
+
+//   public function DeadrunsV2Sample()
+//   {
+//         ini_set('max_execution_time', 360000000000); // 3600 seconds = 60 minutes
+//         set_time_limit(360000000000);
+
+//         $truckData = DB::connection('mysql')->table('baselinetest')->groupBy('Truck')->orderBy('id')->get();
+   
+//         foreach ($truckData as $truckCode => $rows) {
+
+//         Log::info('Started Dead runs v2 on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+
+//        // $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('LoadingTripClassification', '=', 'Trip Start')->orderBy('DateUpdated')->orderBy('Time')->get();
+//        $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('id', '=', 34)->orderBy('DateUpdated')->orderBy('Time')->get();
+//         foreach ($trucks as  $truckrows => $trip) {
+
+//          $nextTrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id )->where('Truck', '=', $rows->Truck)->where('LoadingTripClassification','=', 'Trip End')->orwhere('LoadingTripClassification','=', 'Trip End, Trip Start')->first(); 
+   
+//          // dd($trip,$nextTrip);
+     
+//           $tripEndCheck =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$trip->id, $nextTrip->id])
+//           ->where('Truck','=', $trip->Truck)
+//           ->where('EventTime','=', 1.05)
+//           ->first();
+
+//           $prev = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('id', '=', $tripEndCheck->id - 1)->first();
+//           $next = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('id', '=', $tripEndCheck->id + 1)->first();
+         
+//           if($prev->GFupdated1 != $tripEndCheck->GFupdated1 && $next->GFupdated1 != $tripEndCheck->GFupdated1 ){
+
+//            if($prev->EventTime < 48 && $next->EventTime < 48){
+
+//                $tripUpdate1 = DB::connection('mysql')->table('baselinetest')->where('id', '=', $prev->id)->update([
+     
+//                    'LoadingTripClassification' => 'Trip End'
+           
+//                ]); 
+
+//                $tripUpdat2 = DB::connection('mysql')->table('baselinetest')->where('id', '=', $current->id)->update([
+     
+//                  'LoadingTripClassification' => 'Trip End, Trip Start'
+         
+//              ]); 
+
+//              $tripUpdate3 = DB::connection('mysql')->table('baselinetest')->where('id', '=', $next->id)->update([
+     
+//                'LoadingTripClassification' => 'Trip Start'
+       
+//            ]); 
+
+//            }
+
+//           }
+
+//           dd('one');
+
+//         }
+
+//         Log::info('Finished Dead runs v2 on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
+
+//        } 
+   
+//  }
+
 
   public function TripTimeRoutev2Deadruns()
   {
@@ -6143,11 +8088,16 @@ public function RmsRawDataApi()
            $startDateTime = new DateTime($startDate);
            $endDateTime = new DateTime($endDate);
      
-         $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('LoadingTripClassification', '=', 'Trip Start')->orwhere('Truck', '=', $rows->Truck)->where('LoadingTripClassification', '=', 'Trip End, Trip Start')->orderBy('DateUpdated')->orderBy('Time')->get();
+         $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('LoadingTripClassification', '=', 'Trip Start')->orwhere('Truck', '=', $rows->Truck)->where('LoadingTripClassification', '=', 'Trip End, Trip Start')->orwhere('Truck','=',$rows->Truck)->where('LoadingTripClassification', '=', 'Trip Start,Trip End')->orderBy('DateUpdated')->orderBy('Time')->get();
       
          foreach ($trucks as  $truckrows => $trip) {
-             
-         $nextTrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id )->where('Truck', '=', $rows->Truck)->where('LoadingTripClassificationv2','!=', null)->first(); 
+          
+          if($trip->LoadingTripClassification == "Trip Start,Trip End"){
+
+            $nextTrip = DB::connection('mysql')->table('baselinetest')->where('id', '=', $trip->id )->where('Truck', '=', $rows->Truck)->where('LoadingTripClassificationv2','!=', null)->first(); 
+          }else{         
+           $nextTrip = DB::connection('mysql')->table('baselinetest')->where('id', '>', $trip->id )->where('Truck', '=', $rows->Truck)->where('LoadingTripClassificationv2','!=', null)->first(); 
+          }
         // dd($trip,$nextTrip);
          if($nextTrip != null){
             
@@ -6180,18 +8130,38 @@ public function RmsRawDataApi()
  
          ]); 
         }
+          
 
-        $interval =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$trip->id+1, $nextTrip->id])
-        ->where('Truck', '=', $rows->Truck)
-        ->sum('EventTime');
+        if($trip->LoadingTripClassification == "Trip Start,Trip End"){
 
-           $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('id','=', $nextTrip->id)->update([
- 
-             'TripRoutev2' => $trip->GFupdated1. ' to ' . $nextTrip->GFupdated1,
-             'TripTimev2' => $interval
+          $interval =  DB::connection('mysql')->table('baselinetest')->where('id',  $nextTrip->id)
+          ->where('Truck', '=', $rows->Truck)
+          ->sum('EventTime');
   
-          ]); 
+             $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('id','=', $nextTrip->id)->update([
+   
+               'TripRoutev2' => $trip->GFupdated1. ' to ' . $nextTrip->GFupdated1,
+               'TripTimev2' => $interval
+    
+            ]); 
+  
 
+        }else{
+
+          $interval =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$trip->id+1, $nextTrip->id])
+          ->where('Truck', '=', $rows->Truck)
+          ->sum('EventTime');
+  
+             $tripUpdate = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('id','=', $nextTrip->id)->update([
+   
+               'TripRoutev2' => $trip->GFupdated1. ' to ' . $nextTrip->GFupdated1,
+               'TripTimev2' => $interval
+    
+            ]); 
+  
+
+        }
+    
  
           }
  
@@ -6230,16 +8200,36 @@ public function RmsRawDataApi()
            // dd($recentprev,$trip,$truckrows);
           }else{
 
+            if($trip->LoadingTripClassification == 'Trip Start,Trip End'){
+
+              
+          //  $recentprev = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $trip->Truck)->where('id','<', $trip->id)->where('LoadingTripClassification' ,'=', 'Trip Start')->orwhere('Truck', '=', $trip->Truck)->where('LoadingTripClassification' ,'=', 'Trip End, Trip Start')->where('id','<', $trip->id)->orderBy('id', 'desc')->first();
+            // dd($trip,$recentprev);
+             if($recentprev){
+              $interval =  DB::connection('mysql')->table('baselinetest')->where('id', $trip->id)
+              ->where('Truck', '=', $trip->Truck)
+              ->where('TripID', '=', null)
+              ->update([
+                'TripID' => $truckrows + 1
+              ]);
+            }
+
+            }else{
+
+              
             $recentprev = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $trip->Truck)->where('id','<', $trip->id)->where('LoadingTripClassification' ,'=', 'Trip Start')->orwhere('Truck', '=', $trip->Truck)->where('LoadingTripClassification' ,'=', 'Trip End, Trip Start')->where('id','<', $trip->id)->orderBy('id', 'desc')->first();
-          // dd($trip,$recentprev);
-           if($recentprev){
-            $interval =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$recentprev->id, $trip->id])
-            ->where('Truck', '=', $trip->Truck)
-            ->where('TripID', '=', null)
-            ->update([
-              'TripID' => $truckrows + 1
-            ]);
-          }
+            // dd($trip,$recentprev);
+             if($recentprev){
+              $interval =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$recentprev->id, $trip->id])
+              ->where('Truck', '=', $trip->Truck)
+              ->where('TripID', '=', null)
+              ->update([
+                'TripID' => $truckrows + 1
+              ]);
+            }
+
+            }
+
 
            // dd($recentprev,$trip,$truckrows);
 
@@ -6275,16 +8265,15 @@ public function RmsRawDataApi()
          $endDateTime = new DateTime($endDate);
    
        $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('LoadingTripClassificationv2', '!=', null)->orderBy('DateUpdated')->orderBy('Time')->get();
-      // $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('id', '=', 288686 )->orderBy('DateUpdated')->orderBy('Time')->get();
+        // $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('id', '=', 288686 )->orderBy('DateUpdated')->orderBy('Time')->get();
 
-       //  dd($trucks);
        foreach ($trucks as  $truckrows => $trip) {
            
          if($trip->LoadingTripClassificationv2 == 'Offloading Trip'){
              
            $recentprev = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('TripClassificationv3' ,'=', 'Trip Start')->where('id','<', $trip->id)->orderBy('id', 'desc')->first();
             
-           $interval =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$recentprev->id+1, $trip->id])
+           $interval =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$recentprev->id, $trip->id])
            ->where('Truck', '=', $rows->Truck)
            ->where('FuelClassification','=','Moving')
            ->sum('EventTime');
@@ -6573,10 +8562,12 @@ public function RmsRawDataApi()
             'Time' => $trip->Time,
             'Distance' => $currentRoute1->Distance,
             'TruckType' => $trip->TruckType,
+            'TripStartDate' =>  $recentprev->DateUpdated,
+            'TripStartTime' =>  $recentprev->Time,
             'TripID' => $trip->TripID,
             'LoadingTripClassificationv2' => $trip->LoadingTripClassificationv2,
             'TripTimev2' => $trip->TripTimev2,
-            'StartTime' => $trip->StartTime,
+           'StartTime' => $trip->StartTime,
             'TripRoutev2' =>   $loading . ' to ' . $offloading,
             'TonnesMoved' => $trip->TonnesMoved,
             'TripTravelTime'=>  $interval,
@@ -6595,13 +8586,43 @@ public function RmsRawDataApi()
 
          }else{
 
-          $recentprevd = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('LoadingTripClassification' ,'=', 'Trip Start')->where('id','<', $trip->id)->orwhere('LoadingTripClassification' ,'=', 'Trip End, Trip Start')->where('id','<', $trip->id)->orderBy('id', 'desc')->first();
+          if($trip->LoadingTripClassification == 'Trip Start,Trip End'){
 
-          $interval =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$recentprevd->id+1, $trip->id])
-          ->where('Truck', '=', $rows->Truck)
-          ->where('FuelClassification','=','Moving')
-          ->sum('EventTime');
-       //   dd($interval,$recentprevd,$trip);
+           // $recentprevd = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('LoadingTripClassification' ,'=', 'Trip Start, Trip End')->where('id','=', $trip->id)->orderBy('id', 'desc')->first();
+
+            $interval =  DB::connection('mysql')->table('baselinetest')->where('id', $trip->id)
+            ->where('Truck', '=', $rows->Truck)
+            ->where('FuelClassification','=','Moving')
+            ->sum('EventTime');
+
+            $intervals =  DB::connection('mysql')->table('baselinetest')->where('id', $trip->id - 1)->first();
+           if($intervals){
+
+            $startdate =   $intervals->DateUpdated;
+            $starttime =   $intervals->Time;
+         
+           }else{
+
+            $startdate = null;
+            $starttime = null;
+         
+           }
+    
+          }else{
+
+            $recentprevd = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('LoadingTripClassification' ,'=', 'Trip Start')->where('id','<', $trip->id)->orwhere('LoadingTripClassification' ,'=', 'Trip End, Trip Start')->where('id','<', $trip->id)->orderBy('id', 'desc')->first();
+
+            $interval =  DB::connection('mysql')->table('baselinetest')->whereBetween('id', [$recentprevd->id, $trip->id])
+            ->where('Truck', '=', $rows->Truck)
+            ->where('FuelClassification','=','Moving')
+            ->sum('EventTime');
+       
+
+            $startdate =   $recentprevd->DateUpdated;
+            $starttime =   $recentprevd->Time;
+         
+          }
+
 
           $createTrip = DB::connection('mysql')->table('tripsummary')->insert([
          
@@ -6609,6 +8630,8 @@ public function RmsRawDataApi()
             'Truck' => $trip->Truck,
             'Time' => $trip->Time,
            // 'Distance' => $trip->Distance,
+           'TripStartDate' =>  $startdate,
+           'TripStartTime' =>   $starttime,
             'TruckType' => $trip->TruckType,
             'TripID' => $trip->TripID,
             'StartTime' => $trip->StartTime,
@@ -6634,12 +8657,12 @@ public function RmsRawDataApi()
 
        Log::info('Finished Trip Summary on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
 
-      } 
+       } 
 
-      //dd('done');
+        //dd('done');
 
     
-  }
+      }
 
 
   public function TripDetail()
@@ -6704,7 +8727,7 @@ public function RmsRawDataApi()
 
   } 
 
- // dd('done');
+   // dd('done');
 
 
  }
@@ -6732,7 +8755,7 @@ public function RmsRawDataApi()
 
   $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->orderBy('DateUpdated')->orderBy('Time')->get();
   //  $trucks = DB::connection('mysql')->table('baselinetest')->where('Truck', '=', $rows->Truck)->where('id', '=', 13821)->orderBy('DateUpdated')->orderBy('Time')->get();
- //dd($trucks);
+  //dd($trucks);
   foreach ($trucks as  $truckrows => $trip) {
 
     Log::info('Started sub classification on', ['Truck' => $rows->Truck,  '#' => $truckrows]);
@@ -7305,8 +9328,8 @@ public function lineclassificationV2()
 
        Log::info('Started line class v2 on', ['Truck' => $rows->Truck,  '#' => $truckCode]);
 
-       $startDate = '2024-04-01'; // Replace with your start date
-       $endDate = '2024-04-30'; // Replace with your end date
+       $startDate = '2023-10-01'; // Replace with your start date
+       $endDate = '2024-06-30'; // Replace with your end date
 
          // Convert to DateTime objects
          $startDateTime = new DateTime($startDate);
@@ -7466,7 +9489,7 @@ public function lineclassificationV2()
     //  dd('done');
 
     
-    }
+}
 
 
 

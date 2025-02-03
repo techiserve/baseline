@@ -102,6 +102,8 @@ Route::get('/TripTimeRoutev2', [BaselineController::class, 'TripTimeRoutev2'])->
 
 Route::get('/Stops', [BaselineController::class, 'Stops'])->name('Stops');
 Route::get('/Deadruns', [BaselineController::class, 'Deadruns'])->name('Deadruns');
+Route::get('/DeadrunsV2', [BaselineController::class, 'DeadrunsV2'])->name('DeadrunsV2');
+Route::get('/OutofService', [BaselineController::class, 'OutofService'])->name('OutofService');
 Route::get('/TripTimeRoutev2Deadruns', [BaselineController::class, 'TripTimeRoutev2Deadruns'])->name('TripTimeRoutev2Deadruns');
 Route::get('/TripID', [BaselineController::class, 'TripID'])->name('TripID');
 Route::get('/StartTime', [BaselineController::class, 'StartTime'])->name('StartTime');
